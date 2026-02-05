@@ -1410,71 +1410,72 @@
                         }
                     }
 
-                    function showCompetitionForm(competition = null) {
-                        const isEdit = competition !== null;
-                        const tbody = document.getElementById('competitions-table');
+function showCompetitionForm(competition = null) {
+    const isEdit = competition !== null;
+    const tbody = document.getElementById('competitions-table');
 
-                        const existingForm = tbody.querySelector('.form-row');
-                        if (existingForm) existingForm.remove();
+    const existingForm = tbody.querySelector('.form-row');
+    if (existingForm) existingForm.remove();
 
-                        const selectedMember = competition ? members.find(m => m.gameName === competition.memberName) : null;
+    // ✨ 關鍵修正：這裡也加上 String() 轉換
+    const selectedMember = competition ? members.find(m => String(m.gameName) === competition.memberName) : null;
 
-                        const formRow = document.createElement('tr');
-                        formRow.className = 'form-row';
-                        formRow.innerHTML = `
-                                        <td colspan="3">
-                                            <div class="form-container">
-                                                <form onsubmit="saveCompetition(event, ${isEdit ? competition.id : 'null'})">
-                                                    <div style="margin-bottom: 12px;">
-                                                        <select id="comp-member" onchange="updateFlowerList()" required
-                                                            style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                                                            <option value="">選擇成員*</option>
-                                                            ${members.map(m => `<option value="${m.gameName}" ${competition && competition.memberName === m.gameName ? 'selected' : ''}>${m.gameName}</option>`).join('')}
-                                                        </select>
-                                                    </div>
+    const formRow = document.createElement('tr');
+    formRow.className = 'form-row';
+    formRow.innerHTML = `
+        <td colspan="3">
+            <div class="form-container">
+                <form onsubmit="saveCompetition(event, ${isEdit ? competition.id : 'null'})">
+                    <div style="margin-bottom: 12px;">
+                        <select id="comp-member" onchange="updateFlowerList()" required
+                            style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                            <option value="">選擇成員*</option>
+                            ${members.map(m => `<option value="${m.gameName}" ${competition && String(competition.memberName) === String(m.gameName) ? 'selected' : ''}>${m.gameName}</option>`).join('')}
+                        </select>
+                    </div>
 
-                                                    <div style="margin-top: 12px;">
-                                                        <input type="text" id="comp-flower-search" placeholder="🔍 搜尋此成員的花朵..."
-                                                            onkeyup="filterCheckboxes(this, 'flower-checkboxes')"
-                                                            style="width: 100%; padding: 6px; margin-bottom: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                    <div style="margin-top: 12px;">
+                        <input type="text" id="comp-flower-search" placeholder="🔍 搜尋此成員的花朵..."
+                            oninput="filterCheckboxes(this, 'flower-checkboxes')"
+                            style="width: 100%; padding: 6px; margin-bottom: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
 
-                                                        <div id="flower-checkboxes" class="checkbox-list" style="
-                                                            background: white;
-                                                            max-height: 200px;
-                                                            overflow-y: auto;
-                                                            display: grid;
-                                                            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                                                            gap: 4px;
-                                                            padding: 8px;
-                                                            border: 1px solid #d1d5db;
-                                                            border-radius: 4px;
-                                                        ">
-                                                            ${selectedMember ? renderFlowerCheckboxes(selectedMember, competition ? competition.selectedFlowers : [], false) : '<p style="padding: 4px; color: #6b7280; grid-column: 1/-1;">請先選擇成員</p>'}
-                                                        </div>
-                                                    </div>
+                        <div id="flower-checkboxes" class="checkbox-list" style="
+                            background: white;
+                            max-height: 200px;
+                            overflow-y: auto;
+                            display: grid;
+                            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                            gap: 4px;
+                            padding: 8px;
+                            border: 1px solid #d1d5db;
+                            border-radius: 4px;
+                        ">
+                            ${selectedMember ? renderFlowerCheckboxes(selectedMember, competition ? competition.selectedFlowers : [], false) : '<p style="padding: 4px; color: #6b7280; grid-column: 1/-1;">請先選擇成員</p>'}
+                        </div>
+                    </div>
 
-                                                    <div class="form-buttons" style="margin-top: 12px;">
-                                                        <button type="submit" class="save-btn">💾 儲存</button>
-                                                        <button type="button" class="form-cancel-btn" onclick="renderCompetitions()">❌ 取消</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    `;
+                    <div class="form-buttons" style="margin-top: 12px;">
+                        <button type="submit" class="save-btn">💾 儲存</button>
+                        <button type="button" class="form-cancel-btn" onclick="renderCompetitions()">❌ 取消</button>
+                    </div>
+                </form>
+            </div>
+        </td>
+    `;
 
-                        if (isEdit) {
-                            const rows = tbody.getElementsByTagName('tr');
-                            for (let i = 0; i < rows.length; i++) {
-                                if (rows[i].innerHTML.includes(competition.memberName)) {
-                                    rows[i].replaceWith(formRow);
-                                    break;
-                                }
-                            }
-                        } else {
-                            tbody.insertBefore(formRow, tbody.firstChild);
-                        }
-                    }
-
+    if (isEdit) {
+        const rows = tbody.getElementsByTagName('tr');
+        for (let i = 0; i < rows.length; i++) {
+            // 編輯模式下，找原本的那一行取代
+            if (rows[i].innerHTML.includes(competition.memberName)) {
+                rows[i].replaceWith(formRow);
+                break;
+            }
+        }
+    } else {
+        tbody.insertBefore(formRow, tbody.firstChild);
+    }
+}
                     function renderFlowerCheckboxes(member, selectedFlowers, disabled) {
                         if (!member.ownedFlowers || member.ownedFlowers.length === 0) {
                             return '<p style="padding: 4px; color: #ef4444; grid-column: 1/-1;">此成員尚未登記擁有的花朵，無法參加競賽。</p>';
@@ -1498,21 +1499,24 @@
                                             `).join('');
                     }
 
-                    function updateFlowerList() {
-                        const memberName = document.getElementById('comp-member').value;
-                        const member = members.find(m => m.gameName === memberName);
-                        const checkboxDiv = document.getElementById('flower-checkboxes');
-                        const searchInput = document.getElementById('comp-flower-search'); // 抓搜尋框
+                   function updateFlowerList() {
+    const memberName = document.getElementById('comp-member').value;
+    
+    // ✨ 關鍵修正：加上 String() 強制轉成文字再比對，解決數字名稱(12345)找不到人的問題
+    const member = members.find(m => String(m.gameName) === memberName);
+    
+    const checkboxDiv = document.getElementById('flower-checkboxes');
+    const searchInput = document.getElementById('comp-flower-search');
 
-                        // ✨ 切換成員時，清空搜尋文字，讓使用者看見全部花朵
-                        if (searchInput) searchInput.value = '';
+    // 切換成員時，清空搜尋文字
+    if (searchInput) searchInput.value = '';
 
-                        if (member) {
-                            checkboxDiv.innerHTML = renderFlowerCheckboxes(member, [], false);
-                        } else {
-                            checkboxDiv.innerHTML = '<p style="padding: 8px; color: #6b7280;">請先選擇成員</p>';
-                        }
-                    }
+    if (member) {
+        checkboxDiv.innerHTML = renderFlowerCheckboxes(member, [], false);
+    } else {
+        checkboxDiv.innerHTML = '<p style="padding: 8px; color: #6b7280;">請先選擇成員</p>';
+    }
+}
 
                     function saveCompetition(event, id) {
                         event.preventDefault();
@@ -1930,6 +1934,7 @@
                             saveDataToCloud('guilds', guilds);
                             renderGuildManager();
                         }
+
                     }
 
                     window.onload = init;
