@@ -690,172 +690,203 @@
             }
         
 /* =========================================
-   📱 終極對齊版 RWD (max-width: 1024px)
-   核心邏輯：標題與內容共用「絕對網格寬度」，保證垂直對齊
+   📱 旗艦級 RWD (max-width: 1024px) - 按鈕修正版
+   1. 花朵清單：使用 Grid Area 實現「等級+分數」緊密排列
+   2. 視覺統一：花朵與競賽卡片高度、字體完全一致
+   3. 成員清單：直線對齊 + 按鈕欄位加寬至 75px (確保不被切掉)
    ========================================= */
 @media screen and (max-width: 1024px) {
-    /* 1. 全局重置：讓表格元素聽話 */
-    table, tbody, thead, tr, th, td {
-        display: block !important;
+    /* 1. 隱藏表頭 */
+    thead { display: none !important; }
+
+    /* 2. 重置所有表格結構 (卡片通用設定) */
+    tbody tr {
+        background: #ffffff !important;
         width: 100% !important;
         box-sizing: border-box !important;
+        margin-bottom: 10px !important; /* 卡片間距 */
+        border: 1px solid #f3f4f6 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
     }
 
-    /* 2. 強制開啟所有標題列 (Thead) */
-    thead {
+    /* 3. 重置格子樣式 */
+    tbody td {
         display: block !important;
-        position: sticky !important; /* 吸頂效果 (選用) */
-        top: 0;
-        z-index: 5;
-        background: #fff;
-    }
-
-    /* 3. 設定每一列 (Tr) 的基本樣式 */
-    tr {
-        display: grid !important;
-        gap: 5px !important; /* 欄位間距 */
-        align-items: center !important; /* 垂直置中 */
-        padding: 8px 5px !important;
-        border-bottom: 1px solid #eee !important;
-    }
-    
-    /* 標題列高度 */
-    thead tr { height: 40px !important; background: #f8fafc !important; border-bottom: 2px solid #e2e8f0 !important; }
-    /* 內容列高度 */
-    tbody tr { height: 50px !important; background: #fff !important; }
-
-    /* 4. 統一所有格子的行為：單行、不換行、省略 */
-    th, td {
-        display: block !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        font-size: 13px !important;
-        border: none !important;
-        padding: 0 !important;
     }
-    /* 隱藏 CSS 自動產生的標籤 (避免干擾) */
-    td::before { display: none !important; }
-
+    tbody td::before { display: none !important; }
 
     /* =========================================
-       👥 成員清單：嚴格對齊設定
-       欄位：[遊戲名稱] [ID] [公會] [操作]
-       配比：自動 | 85px | 50px | 70px
+       👥 成員清單 (按鈕修復 + 直線對齊)
+       舊設定：1fr 80px 60px 50px (按鈕太擠)
+       新設定：1fr 70px 50px 75px (完美比例)
        ========================================= */
-    #members-table thead tr, 
-    #members-table tbody tr {
-        grid-template-columns: 1fr 85px 50px 70px !important;
+    #members-table tr {
+        display: grid !important;
+        /* ✨ 關鍵修改：按鈕區改為 75px，ID和公會微縮，確保按鈕完整露出 ✨ */
+        grid-template-columns: 1fr 70px 50px 75px !important;
+        align-items: center !important;
+        height: 48px !important;
+        padding: 0 8px !important; /* 左右內距微調，讓空間更寬裕 */
+        gap: 2px !important;
     }
 
-    /* 針對各欄位的微調 */
-    /* Col 1: 遊戲名稱 */
-    #members-table th:nth-child(1), #members-table td:nth-of-type(1) { text-align: left; padding-left: 5px !important; }
-    #members-table td:nth-of-type(1) { color: #2563eb; font-weight: bold; }
+    /* Col 1: 名字 (自動填滿) */
+    #members-table td:nth-of-type(1) { 
+        font-size: 15px !important; 
+        font-weight: bold !important; 
+        color: #2563eb !important; 
+        padding-left: 4px !important;
+    }
 
-    /* Col 2: 遊戲ID */
-    #members-table th:nth-child(2), #members-table td:nth-of-type(2) { text-align: right; }
-    #members-table td:nth-of-type(2) { font-family: monospace; color: #666; }
+    /* Col 2: ID (70px，靠右) */
+    #members-table td:nth-of-type(2) { 
+        font-size: 11px !important; /* 字體微縮 */
+        color: #9ca3af !important; 
+        text-align: right !important; 
+        padding-right: 4px !important; 
+        font-family: monospace !important; 
+    }
+    #members-table td:nth-of-type(2)::before { content: "#" !important; color: #e5e7eb !important; }
 
-    /* Col 3: 公會 */
-    #members-table th:nth-child(3), #members-table td:nth-of-type(3) { text-align: center; }
+    /* Col 3: 公會 (50px，置中) */
+    #members-table td:nth-of-type(3) { display: flex !important; justify-content: center !important; }
     #members-table td:nth-of-type(3) span, #members-table td:nth-of-type(3) {
-        background: #f1f5f9; padding: 2px 4px; border-radius: 4px; color: #64748b;
-        display: block; width: 100%; text-align: center;
+        font-size: 11px !important; color: #64748b !important; background: #f1f5f9 !important;
+        padding: 0 !important; width: 100% !important; border-radius: 4px !important;
+        text-align: center !important; height: 20px !important; line-height: 20px !important;
     }
 
-    /* Col 4: 操作 */
-    #members-table th:nth-child(5), #members-table td:nth-of-type(5) { text-align: right; overflow: visible !important; }
-    /* 隱藏「擁有花」這一欄 (Col 4 in HTML) */
-    #members-table th:nth-child(4), #members-table td:nth-of-type(4) { display: none !important; }
-
-
-    /* =========================================
-       🌸 花朵清單：嚴格對齊設定
-       欄位：[花朵名稱] [誰擁有] [操作]
-       配比：1fr | 1fr | 70px
-       (這裡我們把等級/分數合併顯示在名稱下，或者簡單點只顯示名稱)
-       ========================================= */
-    #flowers-table thead tr, 
-    #flowers-table tbody tr {
-        grid-template-columns: 1.2fr 1fr 70px !important;
+    /* Col 4: 按鈕 (75px，靠右) - 確保空間足夠 */
+    #members-table td:nth-of-type(5) { 
+        text-align: right !important; 
+        overflow: visible !important; /* 允許陰影或邊框凸出 */
     }
-
-    /* Col 1: 花朵名稱 */
-    #flowers-table th:nth-child(1), #flowers-table td:nth-of-type(1) { text-align: left; padding-left: 5px !important; }
-    #flowers-table td:nth-of-type(1) { color: #2563eb; font-weight: bold; }
-
-    /* Col 2: 誰擁有 (對齊標題) */
-    #flowers-table th:nth-child(2), #flowers-table td:nth-of-type(2) { text-align: left; }
-    #flowers-table td:nth-of-type(2) { color: #93c5fd; font-size: 12px; }
-    #flowers-table td:nth-of-type(2)::before { content: "👤 "; }
-
-    /* Col 9: 操作 (按鈕) */
-    #flowers-table th:nth-child(9), #flowers-table td:nth-of-type(9) { text-align: right; overflow: visible !important; }
-    
-    /* 隱藏花朵清單中間那些雜七雜八的欄位，確保標題跟內容對齊 */
-    #flowers-table th:nth-child(3), #flowers-table td:nth-of-type(3), /* 等級 */
-    #flowers-table th:nth-child(4), #flowers-table td:nth-of-type(4), /* 分數 */
-    #flowers-table th:nth-child(5), #flowers-table td:nth-of-type(5), /* 日期 */
-    #flowers-table th:nth-child(6), #flowers-table td:nth-of-type(6),
-    #flowers-table th:nth-child(7), #flowers-table td:nth-of-type(7),
-    #flowers-table th:nth-child(8), #flowers-table td:nth-of-type(8) {
-        display: none !important;
-    }
-
-
-    /* =========================================
-       🏆 競賽清單：嚴格對齊設定
-       欄位：[成員名稱] [選擇的花朵] [操作]
-       配比：100px | 1fr | 70px
-       ========================================= */
-    #competitions-table thead tr, 
-    #competitions-table tbody tr {
-        grid-template-columns: 100px 1fr 70px !important;
+    #members-table .actions { 
+        justify-content: flex-end !important; 
+        gap: 8px !important; /* 按鈕間距拉開一點，比較好按 */
+        padding-right: 2px !important;
     }
     
-    /* Col 1: 成員 */
-    #competitions-table th:nth-child(1), #competitions-table td:nth-of-type(1) { text-align: left; padding-left: 5px !important; }
-    #competitions-table td:nth-of-type(1) { color: #2563eb; font-weight: bold; }
-
-    /* Col 2: 花朵 */
-    #competitions-table th:nth-child(2), #competitions-table td:nth-of-type(2) { text-align: left; }
-    #competitions-table td:nth-of-type(2) { color: #666; font-size: 12px; }
-
-    /* Col 3: 操作 */
-    #competitions-table th:nth-child(3), #competitions-table td:nth-of-type(3) { text-align: right; overflow: visible !important; }
+    /* 隱藏花朵 */
+    #members-table td:nth-of-type(4) { display: none !important; }
 
 
     /* =========================================
-       📝 表單救援 (新增/編輯)
+       🌸 花朵清單 (Grid Area 完美佈局)
        ========================================= */
-    /* 因為 tr 變成 grid 了，表單列需要改回 block 才能正常顯示 */
-    tr.form-row {
-        display: block !important;
+    #flowers-table tr {
+        display: grid !important;
+        /* 定義4欄寬度：等級(自動) 分數(自動) 擁有者(剩餘空間) 按鈕(自動) */
+        grid-template-columns: max-content max-content 1fr auto !important;
+        grid-template-rows: auto auto !important;
         height: auto !important;
-        background: #f8fafc !important;
-        border: 2px dashed #cbd5e1 !important;
-        padding: 15px !important;
-        margin-bottom: 10px !important;
+        min-height: 52px !important;
+        padding: 8px 12px !important;
+        gap: 2px 6px !important;
+        align-content: center !important;
     }
-    tr.form-row td {
+
+    /* 1. 花名 */
+    #flowers-table td:nth-of-type(1) {
+        grid-column: 1 / 4 !important;
+        grid-row: 1 / 2 !important;
+        font-size: 15px !important;
+        font-weight: bold !important;
+        color: #2563eb !important;
+        margin-bottom: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    /* 2. 等級 */
+    #flowers-table td:nth-of-type(3) {
+        grid-column: 1 / 2 !important;
+        grid-row: 2 / 3 !important;
+        font-size: 12px !important;
+        color: #4b5563 !important;
+    }
+
+    /* 3. 分數 */
+    #flowers-table td:nth-of-type(4) {
+        grid-column: 2 / 3 !important;
+        grid-row: 2 / 3 !important;
+        font-size: 12px !important;
+        color: #6b7280 !important;
+        padding-left: 0 !important;
+        pointer-events: none !important;
+    }
+    #flowers-table td:nth-of-type(4)::after { content: "分"; font-size: 11px; }
+
+    /* 4. 擁有者 */
+    #flowers-table td:nth-of-type(2) {
         display: block !important;
-        width: 100% !important;
-        white-space: normal !important; /* 允許換行 */
-        overflow: visible !important;
+        grid-column: 3 / 4 !important;
+        grid-row: 2 / 3 !important;
+        font-size: 11px !important;
+        color: #93c5fd !important;
+        text-align: right !important;
+        padding-right: 8px !important;
     }
-    .form-grid { display: flex; flex-direction: column; gap: 10px; }
-    .form-container input, .form-container select { height: 40px; border: 1px solid #ccc; border-radius: 4px; padding: 0 10px; }
-    
-    /* 按鈕樣式 */
-    .edit-btn, .delete-btn {
-        padding: 4px 8px !important;
-        background: #f1f5f9;
-        border: 1px solid #cbd5e1;
-        border-radius: 4px;
-        margin-left: 4px;
-        font-size: 14px;
+    #flowers-table td:nth-of-type(2)::before { content: "👤"; font-size: 10px; margin-right:2px; }
+
+    /* 5. 按鈕 */
+    #flowers-table td:nth-of-type(9) {
+        grid-column: 4 / 5 !important;
+        grid-row: 1 / 3 !important;
+        align-self: center !important;
     }
+
+    /* 隱藏次要資訊 */
+    #flowers-table td:nth-of-type(5), #flowers-table td:nth-of-type(6),
+    #flowers-table td:nth-of-type(7), #flowers-table td:nth-of-type(8) { display: none !important; }
+
+
+    /* =========================================
+       🏆 競賽清單
+       ========================================= */
+    #competitions-table tr {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-rows: auto auto !important;
+        height: auto !important;
+        min-height: 52px !important;
+        padding: 8px 12px !important;
+        gap: 2px !important;
+        align-content: center !important;
+    }
+    #competitions-table td:nth-of-type(1) {
+        grid-column: 1 / 2 !important; grid-row: 1 / 2 !important;
+        font-size: 15px !important; font-weight: bold !important; color: #2563eb !important;
+        margin-bottom: 2px !important; line-height: 1.3 !important;
+    }
+    #competitions-table td:nth-of-type(2) {
+        grid-column: 1 / 2 !important; grid-row: 2 / 3 !important;
+        font-size: 12px !important; color: #6b7280 !important;
+    }
+    #competitions-table td:nth-of-type(3) {
+        grid-column: 2 / 3 !important; grid-row: 1 / 3 !important; align-self: center !important;
+    }
+
+    /* 通用按鈕樣式 */
+    .edit-btn, .delete-btn { font-size: 15px !important; padding: 4px !important; background: #f9fafb !important; border-radius: 4px !important; border: 1px solid #e5e7eb !important; margin-left: 4px !important; }
+
+    /* =========================================
+       📝 表單救援
+       ========================================= */
+    #members-table tr.form-row, #flowers-table tr.form-row, #competitions-table tr.form-row {
+        display: block !important; height: auto !important; background: #f8fafc !important;
+        border: 2px dashed #cbd5e1 !important; padding: 12px !important; margin-bottom: 12px !important;
+    }
+    tr.form-row td { display: block !important; width: 100% !important; height: auto !important; white-space: normal !important; overflow: visible !important; }
+    .form-container input, .form-container select { height: 38px !important; }
+    .form-grid { display: flex !important; flex-direction: column !important; gap: 8px !important; }
 }
 
 </style>
@@ -2306,6 +2337,7 @@ function toggleAllDistribute(checked) {
                 </script>
 </body>
 </html>
+
 
 
 
