@@ -854,7 +854,7 @@
 
                 <script>
                     // 全域變數
-                    const API_URL = 'https://script.google.com/macros/s/AKfycbzH-SDaAvJA3kQWUd5YlqPZAW9PLESqopf8gqzIDF1aYlP97fTcLzUbojh90K1on3OwoA/exec';
+                    const API_URL = 'https://script.google.com/macros/s/AKfycbyzgZx9bTK-VsPxf0oItceLBZDMu6kaGUpT3y-q1UZUIfoWT8cQVqXZtBpsLgBDy6bQ4Q/exec';
 
                     const ADMIN_USERNAME = '13579';
                     const ADMIN_PASSWORD = '24680';
@@ -1110,9 +1110,8 @@
         `).join('');
                         }
 
-                        // 2. ✨ 準備公會選單 HTML (關鍵修改在這裡)
+                        // 2. 準備公會選單 HTML
                         let guildInputHtml = '';
-                        // 如果有公會資料 -> 顯示下拉選單
                         if (guilds.length > 0) {
                             guildInputHtml = `
             <select id="member-guild" required style="grid-column: span 2;">
@@ -1121,11 +1120,9 @@
             </select>
         `;
                         } else {
-                            // 如果沒有公會資料 -> 產生一個隱藏欄位 (避免報錯)
                             guildInputHtml = `<input type="hidden" id="member-guild" value="">`;
                         }
 
-                        // 設定欄位鎖定邏輯
                         const isLocked = isEdit && !isAuthenticated;
 
                         // 3. 組合表單 HTML
@@ -1148,6 +1145,17 @@
                                 oninput="filterCheckboxes(this, 'member-flower-list')"
                                 style="width: 100%; padding: 6px; margin-bottom: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
                             
+                            <div style="margin-bottom: 8px; display: flex; gap: 8px;">
+                                <button type="button" onclick="toggleAllFlowers(true)" 
+                                    style="padding: 4px 12px; font-size: 12px; background: #e5e7eb; border: none; border-radius: 4px; cursor: pointer; color: #374151;">
+                                    ✅ 全選
+                                </button>
+                                <button type="button" onclick="toggleAllFlowers(false)" 
+                                    style="padding: 4px 12px; font-size: 12px; background: #e5e7eb; border: none; border-radius: 4px; cursor: pointer; color: #374151;">
+                                    ⬜ 全不選
+                                </button>
+                            </div>
+
                             <div id="member-flower-list" class="checkbox-list" style="
                                 background: white; 
                                 max-height: 200px; 
@@ -1186,55 +1194,85 @@
                         showMemberForm(member);
                     }
 
-                    function saveMember(event, id) {
-                        event.preventDefault();
+function saveMember(event, id) {
+    event.preventDefault();
 
-                        const gameNameInput = document.getElementById('member-gameName');
-                        const gameIdInput = document.getElementById('member-gameId');
-                        const guildInput = document.getElementById('member-guild');
+    const gameNameInput = document.getElementById('member-gameName');
+    const gameIdInput = document.getElementById('member-gameId');
+    const guildInput = document.getElementById('member-guild'); // 可能是選單也可能是隱藏欄位
 
-                        const checkboxes = document.querySelectorAll('input[name="member-flower-select"]:checked');
-                        const ownedFlowers = Array.from(checkboxes).map(cb => cb.value);
+    // 取得新輸入的名字
+    const newName = gameNameInput.value.trim();
+    
+    // 取得選中的花朵
+    const checkboxes = document.querySelectorAll('input[name="member-flower-select"]:checked');
+    const ownedFlowers = Array.from(checkboxes).map(cb => cb.value);
 
-                        if (id) {
-                            // --- 編輯模式 ---
-                            const index = members.findIndex(m => m.id === id);
-                            if (index === -1) return;
+    if (id) {
+        // --- 編輯模式 ---
+        const index = members.findIndex(m => m.id === id);
+        if (index === -1) return;
 
-                            if (isAuthenticated) {
-                                // 管理員：更新全部
-                                members[index] = {
-                                    ...members[index],
-                                    gameName: gameNameInput.value,
-                                    gameId: gameIdInput.value,
-                                    guild: guildInput.value,
-                                    ownedFlowers
-                                };
-                            } else {
-                                // 一般人：只更新公會和花朵，名字ID維持原樣
-                                members[index] = {
-                                    ...members[index],
-                                    guild: guildInput.value,
-                                    ownedFlowers
-                                };
-                            }
-                        } else {
-                            // --- 新增模式 ---
-                            // 所有人都可以新增
-                            members.push({
-                                id: Date.now(),
-                                gameName: gameNameInput.value,
-                                gameId: gameIdInput.value,
-                                guild: guildInput.value,
-                                ownedFlowers
-                            });
-                        }
+        // ✨ 關鍵步驟 1: 記錄原本的舊名字
+        const oldName = members[index].gameName;
 
-                        saveDataToCloud('members', members);
-                        renderMembers();
-                        renderFlowers(); // 連動更新花朵列表
-                    }
+        if (isAuthenticated) {
+            // 管理員：更新全部
+            members[index] = {
+                ...members[index],
+                gameName: newName,
+                gameId: gameIdInput.value,
+                guild: guildInput.value,
+                ownedFlowers
+            };
+        } else {
+            // 一般人：只更新公會和花朵，名字ID維持原樣 (防止被亂改)
+            // 但如果這邊沒改名，oldName === newName，下面的連動邏輯就不會執行，所以沒關係
+            members[index] = {
+                ...members[index],
+                guild: guildInput.value,
+                ownedFlowers
+            };
+        }
 
+        // ✨ 關鍵步驟 2: 檢查名字是否改變，若改變則連動更新 [競賽紀錄]
+        if (isAuthenticated && oldName !== newName) {
+            let competitionUpdated = false;
+            
+            competitions.forEach(c => {
+                // 比對舊名字 (加上 String 轉型避免數字名字出錯)
+                if (String(c.memberName) === String(oldName)) {
+                    c.memberName = newName; // 換成新名字
+                    competitionUpdated = true;
+                }
+            });
+
+            // 如果有更新到競賽紀錄，就存檔並重繪
+            if (competitionUpdated) {
+                saveDataToCloud('competitions', competitions);
+                renderCompetitions();
+                console.log(`已自動將競賽紀錄中的「${oldName}」更新為「${newName}」`);
+            }
+        }
+
+    } else {
+        // --- 新增模式 ---
+        members.push({
+            id: Date.now(),
+            gameName: newName,
+            gameId: gameIdInput.value,
+            guild: guildInput.value,
+            ownedFlowers
+        });
+    }
+
+    // 儲存成員資料
+    saveDataToCloud('members', members);
+    
+    // 更新畫面
+    renderMembers();
+    renderFlowers(); // 連動更新花朵列表的擁有者
+}
                     function deleteMember(id) {
                         // ✅ 必須保留這段，確保一般人無法透過程式碼刪除
                         if (!isAuthenticated) {
@@ -1410,72 +1448,71 @@
                         }
                     }
 
-function showCompetitionForm(competition = null) {
-    const isEdit = competition !== null;
-    const tbody = document.getElementById('competitions-table');
+                    function showCompetitionForm(competition = null) {
+                        const isEdit = competition !== null;
+                        const tbody = document.getElementById('competitions-table');
 
-    const existingForm = tbody.querySelector('.form-row');
-    if (existingForm) existingForm.remove();
+                        const existingForm = tbody.querySelector('.form-row');
+                        if (existingForm) existingForm.remove();
 
-    // ✨ 關鍵修正：這裡也加上 String() 轉換
-    const selectedMember = competition ? members.find(m => String(m.gameName) === competition.memberName) : null;
+                        const selectedMember = competition ? members.find(m => m.gameName === competition.memberName) : null;
 
-    const formRow = document.createElement('tr');
-    formRow.className = 'form-row';
-    formRow.innerHTML = `
-        <td colspan="3">
-            <div class="form-container">
-                <form onsubmit="saveCompetition(event, ${isEdit ? competition.id : 'null'})">
-                    <div style="margin-bottom: 12px;">
-                        <select id="comp-member" onchange="updateFlowerList()" required
-                            style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                            <option value="">選擇成員*</option>
-                            ${members.map(m => `<option value="${m.gameName}" ${competition && String(competition.memberName) === String(m.gameName) ? 'selected' : ''}>${m.gameName}</option>`).join('')}
-                        </select>
-                    </div>
+                        const formRow = document.createElement('tr');
+                        formRow.className = 'form-row';
+                        formRow.innerHTML = `
+                                        <td colspan="3">
+                                            <div class="form-container">
+                                                <form onsubmit="saveCompetition(event, ${isEdit ? competition.id : 'null'})">
+                                                    <div style="margin-bottom: 12px;">
+                                                        <select id="comp-member" onchange="updateFlowerList()" required
+                                                            style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                                                            <option value="">選擇成員*</option>
+                                                            ${members.map(m => `<option value="${m.gameName}" ${competition && competition.memberName === m.gameName ? 'selected' : ''}>${m.gameName}</option>`).join('')}
+                                                        </select>
+                                                    </div>
 
-                    <div style="margin-top: 12px;">
-                        <input type="text" id="comp-flower-search" placeholder="🔍 搜尋此成員的花朵..."
-                            oninput="filterCheckboxes(this, 'flower-checkboxes')"
-                            style="width: 100%; padding: 6px; margin-bottom: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                                                    <div style="margin-top: 12px;">
+                                                        <input type="text" id="comp-flower-search" placeholder="🔍 搜尋此成員的花朵..."
+                                                            onkeyup="filterCheckboxes(this, 'flower-checkboxes')"
+                                                            style="width: 100%; padding: 6px; margin-bottom: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
 
-                        <div id="flower-checkboxes" class="checkbox-list" style="
-                            background: white;
-                            max-height: 200px;
-                            overflow-y: auto;
-                            display: grid;
-                            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                            gap: 4px;
-                            padding: 8px;
-                            border: 1px solid #d1d5db;
-                            border-radius: 4px;
-                        ">
-                            ${selectedMember ? renderFlowerCheckboxes(selectedMember, competition ? competition.selectedFlowers : [], false) : '<p style="padding: 4px; color: #6b7280; grid-column: 1/-1;">請先選擇成員</p>'}
-                        </div>
-                    </div>
+                                                        <div id="flower-checkboxes" class="checkbox-list" style="
+                                                            background: white;
+                                                            max-height: 200px;
+                                                            overflow-y: auto;
+                                                            display: grid;
+                                                            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                                                            gap: 4px;
+                                                            padding: 8px;
+                                                            border: 1px solid #d1d5db;
+                                                            border-radius: 4px;
+                                                        ">
+                                                            ${selectedMember ? renderFlowerCheckboxes(selectedMember, competition ? competition.selectedFlowers : [], false) : '<p style="padding: 4px; color: #6b7280; grid-column: 1/-1;">請先選擇成員</p>'}
+                                                        </div>
+                                                    </div>
 
-                    <div class="form-buttons" style="margin-top: 12px;">
-                        <button type="submit" class="save-btn">💾 儲存</button>
-                        <button type="button" class="form-cancel-btn" onclick="renderCompetitions()">❌ 取消</button>
-                    </div>
-                </form>
-            </div>
-        </td>
-    `;
+                                                    <div class="form-buttons" style="margin-top: 12px;">
+                                                        <button type="submit" class="save-btn">💾 儲存</button>
+                                                        <button type="button" class="form-cancel-btn" onclick="renderCompetitions()">❌ 取消</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    `;
 
-    if (isEdit) {
-        const rows = tbody.getElementsByTagName('tr');
-        for (let i = 0; i < rows.length; i++) {
-            // 編輯模式下，找原本的那一行取代
-            if (rows[i].innerHTML.includes(competition.memberName)) {
-                rows[i].replaceWith(formRow);
-                break;
-            }
-        }
-    } else {
-        tbody.insertBefore(formRow, tbody.firstChild);
-    }
-}
+                        if (isEdit) {
+                            const rows = tbody.getElementsByTagName('tr');
+                            for (let i = 0; i < rows.length; i++) {
+                                if (rows[i].innerHTML.includes(competition.memberName)) {
+                                    rows[i].replaceWith(formRow);
+                                    break;
+                                }
+                            }
+                        } else {
+                            tbody.insertBefore(formRow, tbody.firstChild);
+                        }
+                    }
+
                     function renderFlowerCheckboxes(member, selectedFlowers, disabled) {
                         if (!member.ownedFlowers || member.ownedFlowers.length === 0) {
                             return '<p style="padding: 4px; color: #ef4444; grid-column: 1/-1;">此成員尚未登記擁有的花朵，無法參加競賽。</p>';
@@ -1499,24 +1536,21 @@ function showCompetitionForm(competition = null) {
                                             `).join('');
                     }
 
-                   function updateFlowerList() {
-    const memberName = document.getElementById('comp-member').value;
-    
-    // ✨ 關鍵修正：加上 String() 強制轉成文字再比對，解決數字名稱(12345)找不到人的問題
-    const member = members.find(m => String(m.gameName) === memberName);
-    
-    const checkboxDiv = document.getElementById('flower-checkboxes');
-    const searchInput = document.getElementById('comp-flower-search');
+                    function updateFlowerList() {
+                        const memberName = document.getElementById('comp-member').value;
+                        const member = members.find(m => m.gameName === memberName);
+                        const checkboxDiv = document.getElementById('flower-checkboxes');
+                        const searchInput = document.getElementById('comp-flower-search'); // 抓搜尋框
 
-    // 切換成員時，清空搜尋文字
-    if (searchInput) searchInput.value = '';
+                        // ✨ 切換成員時，清空搜尋文字，讓使用者看見全部花朵
+                        if (searchInput) searchInput.value = '';
 
-    if (member) {
-        checkboxDiv.innerHTML = renderFlowerCheckboxes(member, [], false);
-    } else {
-        checkboxDiv.innerHTML = '<p style="padding: 8px; color: #6b7280;">請先選擇成員</p>';
-    }
-}
+                        if (member) {
+                            checkboxDiv.innerHTML = renderFlowerCheckboxes(member, [], false);
+                        } else {
+                            checkboxDiv.innerHTML = '<p style="padding: 8px; color: #6b7280;">請先選擇成員</p>';
+                        }
+                    }
 
                     function saveCompetition(event, id) {
                         event.preventDefault();
@@ -1567,39 +1601,41 @@ function showCompetitionForm(competition = null) {
                         });
                     }
 
-                    // 渲染花朵清單
-                    function renderFlowers() {
-                        const tbody = document.getElementById('flowers-table');
-                        tbody.innerHTML = '';
+// 渲染花朵清單 (加入成員批量管理按鈕)
+function renderFlowers() {
+    const tbody = document.getElementById('flowers-table');
+    tbody.innerHTML = '';
+    
+    flowers.forEach(flower => {
+        const owners = members.filter(m => m.ownedFlowers && m.ownedFlowers.includes(flower.name)).map(m => m.gameName);
+        const gradeClass = 'grade-' + getGradeColorClass(flower.grade);
+        
+        // ✨ 新增中間那個 👥 按鈕
+        const actionButtons = isAuthenticated ? `
+            <button class="edit-btn" onclick="editFlower(${flower.id})" title="編輯花朵">✏️</button>
+            <button class="edit-btn" onclick="openDistributeModal(${flower.id})" title="管理擁有者" style="color:#0ea5e9;">👥</button>
+            <button class="delete-btn" onclick="deleteFlower(${flower.id})" title="刪除花朵">🗑️</button>
+        ` : `<span style="color:#ccc; font-size:12px;">🔒</span>`;
 
-                        flowers.forEach(flower => {
-                            const owners = members.filter(m => m.ownedFlowers && m.ownedFlowers.includes(flower.name)).map(m => m.gameName);
-                            const gradeClass = 'grade-' + getGradeColorClass(flower.grade);
-
-                            const actionButtons = isAuthenticated ? `
-                                        <button class="edit-btn" onclick="editFlower(${flower.id})">✏️</button>
-                                        <button class="delete-btn" onclick="deleteFlower(${flower.id})">🗑️</button>
-                                    ` : `<span style="color:#ccc; font-size:12px;">🔒</span>`;
-
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                        <td><span class="clickable-link" onclick="showFlowerDetail(${flower.id})">${flower.name}</span></td>
-
-                                        <td style="font-size: 13px;">${owners.length > 0 ? owners.join(', ') : '無'}</td>
-
-                                        <td><span class="${gradeClass}">${flower.grade}</span></td>
-                                        <td>${flower.competitionScore}</td>
-                                        <td>${flower.releaseDate || '-'}</td>
-                                        <td>${flower.vase || '-'}</td>
-                                        <td style="font-size: 13px; color: #4b5563;">${flower.note || '-'}</td>
-
-                                        <td>${flower.source}</td>
-
-                                        <td><div class="actions">${actionButtons}</div></td>
-                                    `;
-                            tbody.appendChild(row);
-                        });
-                    }
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span class="clickable-link" onclick="showFlowerDetail(${flower.id})">${flower.name}</span></td>
+            
+            <td style="font-size: 13px;">${owners.length > 0 ? owners.join(', ') : '無'}</td>
+            
+            <td><span class="${gradeClass}">${flower.grade}</span></td>
+            <td>${flower.competitionScore}</td>
+            <td>${flower.releaseDate || '-'}</td>
+            <td>${flower.vase || '-'}</td>
+            <td style="font-size: 13px; color: #4b5563;">${flower.note || '-'}</td>
+            
+            <td>${flower.source}</td>
+            
+            <td><div class="actions">${actionButtons}</div></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
 
                     // ✨ 花朵等級排序功能
                     let isGradeDesc = false; // 排序狀態
@@ -1934,8 +1970,146 @@ function showCompetitionForm(competition = null) {
                             saveDataToCloud('guilds', guilds);
                             renderGuildManager();
                         }
+                    }
+
+                    // ✨ 全選/全不選功能 (支援搜尋篩選)
+                    function toggleAllFlowers(checkStatus) {
+                        const container = document.getElementById('member-flower-list');
+                        const labels = container.getElementsByTagName('label');
+
+                        for (let i = 0; i < labels.length; i++) {
+                            // 只針對目前「顯示中」的選項操作 (支援搜尋後全選)
+                            if (labels[i].style.display !== 'none' && !labels[i].classList.contains('hidden')) {
+                                const checkbox = labels[i].querySelector('input[type="checkbox"]');
+                                if (checkbox) {
+                                    checkbox.checked = checkStatus;
+                                }
+                            }
+                        }
 
                     }
+
+                    // ==========================================
+// 👥 花朵批量派發功能 (管理員專用)
+// ==========================================
+
+let currentDistributeFlowerId = null;
+
+function openDistributeModal(flowerId) {
+    if (!isAuthenticated) return alert('權限不足');
+    
+    const flower = flowers.find(f => f.id === flowerId);
+    if (!flower) return;
+    
+    currentDistributeFlowerId = flowerId;
+
+    // 產生成員列表 HTML
+    const membersHtml = members.map(m => {
+        const hasFlower = m.ownedFlowers && m.ownedFlowers.includes(flower.name);
+        return `
+            <label class="checkbox-item" style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #eee;">
+                <div style="display:flex; align-items:center;">
+                    <input type="checkbox" name="distribute-member" value="${m.id}" ${hasFlower ? 'checked' : ''}>
+                    <span style="margin-left:8px; font-weight:bold;">${m.gameName}</span>
+                    <span style="margin-left:8px; font-size:12px; color:#666; background:#f3f4f6; padding:2px 6px; border-radius:4px;">${m.guild}</span>
+                </div>
+                ${hasFlower ? '<span style="font-size:12px; color:#16a34a;">已擁有</span>' : ''}
+            </label>
+        `;
+    }).join('');
+
+    const html = `
+        <div class="modal-header">
+            <div class="modal-subtitle">批量管理擁有者</div>
+            <div class="modal-title" style="color:#2563eb;">${flower.name}</div>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <input type="text" placeholder="🔍 搜尋成員..." oninput="filterDistributeList(this)" 
+                   style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+        </div>
+
+        <div style="margin-bottom: 10px; display: flex; gap: 8px;">
+            <button type="button" onclick="toggleAllDistribute(true)" style="padding: 4px 12px; background: #e5e7eb; border: none; border-radius: 4px; cursor: pointer;">✅ 全選</button>
+            <button type="button" onclick="toggleAllDistribute(false)" style="padding: 4px 12px; background: #e5e7eb; border: none; border-radius: 4px; cursor: pointer;">⬜ 全不選</button>
+        </div>
+
+        <div id="distribute-list" style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
+            ${membersHtml}
+        </div>
+
+        <div class="form-buttons" style="margin-top: 16px;">
+            <button onclick="saveFlowerDistribution()" class="save-btn" style="width:100%; justify-content:center;">💾 儲存變更</button>
+        </div>
+    `;
+    
+    openModal(html);
+}
+
+// 儲存派發結果
+function saveFlowerDistribution() {
+    if (!currentDistributeFlowerId) return;
+    
+    const flower = flowers.find(f => f.id === currentDistributeFlowerId);
+    if (!flower) return;
+    
+    const checkboxes = document.querySelectorAll('input[name="distribute-member"]');
+    const checkedMemberIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => parseInt(cb.value));
+    
+    let isUpdated = false;
+
+    // 遍歷所有成員，更新他們的擁有狀態
+    members.forEach(m => {
+        const shouldHave = checkedMemberIds.includes(m.id);
+        const actuallyHas = m.ownedFlowers && m.ownedFlowers.includes(flower.name);
+        
+        if (shouldHave && !actuallyHas) {
+            // 應該有但沒有 -> 加入
+            if (!m.ownedFlowers) m.ownedFlowers = [];
+            m.ownedFlowers.push(flower.name);
+            isUpdated = true;
+        } else if (!shouldHave && actuallyHas) {
+            // 不該有但有 -> 移除
+            m.ownedFlowers = m.ownedFlowers.filter(f => f !== flower.name);
+            isUpdated = true;
+        }
+    });
+
+    if (isUpdated) {
+        saveDataToCloud('members', members);
+        renderFlowers(); // 更新列表顯示的擁有者
+        renderMembers(); // 更新成員列表
+        closeModal();
+        alert(`已成功更新「${flower.name}」的擁有者名單！`);
+    } else {
+        closeModal();
+    }
+}
+
+// 搜尋篩選成員
+function filterDistributeList(input) {
+    const filter = input.value.toLowerCase().trim();
+    const list = document.getElementById('distribute-list');
+    const labels = list.getElementsByTagName('label');
+    
+    for (let label of labels) {
+        const text = label.textContent.toLowerCase();
+        label.style.display = text.includes(filter) ? '' : 'none';
+    }
+}
+
+// 全選/全不選 (僅針對篩選後的顯示項目)
+function toggleAllDistribute(checked) {
+    const list = document.getElementById('distribute-list');
+    const labels = list.getElementsByTagName('label');
+    
+    for (let label of labels) {
+        if (label.style.display !== 'none') {
+            const cb = label.querySelector('input[type="checkbox"]');
+            if (cb) cb.checked = checked;
+        }
+    }
+}
 
                     window.onload = init;
                 </script>
