@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head>
+<>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>朝朝網頁試用(限會長.會不時清理)</title>
@@ -23,7 +23,7 @@
             margin: 0 auto;
         }
 
-        .header {
+        .er {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -221,7 +221,7 @@
             border-collapse: collapse;
         }
 
-        thead {
+        t {
             background-color: #f3f4f6;
             border-bottom: 1px solid #d1d5db;
         }
@@ -500,7 +500,7 @@
         }
 
         /* 卡片內容排版 */
-        .modal-header {
+        .modal-er {
             border-bottom: 1px solid #eee;
             padding-bottom: 12px;
             margin-bottom: 16px;
@@ -691,20 +691,19 @@
 
 /* =========================================
    📱 旗艦級 RWD (max-width: 1024px)
-   1. 花朵清單：使用 Grid Area 實現「等級+分數」緊密排列
-   2. 視覺統一：花朵與競賽卡片高度、字體完全一致
-   3. 成員清單：維持絕對直線對齊
+   1. 成員清單：優化欄位寬度，確保管理員按鈕不被切到
+   2. 花朵/競賽：維持完美的 Grid Area 佈局
    ========================================= */
 @media screen and (max-width: 1024px) {
     /* 1. 隱藏表頭 */
-    thead { display: none !important; }
+    t { display: none !important; }
 
     /* 2. 重置所有表格結構 (卡片通用設定) */
     tbody tr {
         background: #ffffff !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        margin-bottom: 10px !important; /* 卡片間距 */
+        margin-bottom: 10px !important;
         border: 1px solid #f3f4f6 !important;
         border-radius: 8px !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
@@ -724,102 +723,109 @@
     tbody td::before { display: none !important; }
 
     /* =========================================
-       👥 成員清單 (絕對直線對齊)
+       👥 成員清單 (按鈕修復版)
+       舊設定：1fr 80px 60px 50px (按鈕太擠)
+       新設定：1fr 70px 55px 75px (空間完美分配)
        ========================================= */
     #members-table tr {
         display: grid !important;
-        grid-template-columns: 1fr 80px 60px 50px !important;
+        /* ✨ 關鍵修改：按鈕區加寬到 75px，ID和公會稍微縮小擠出空間 ✨ */
+        grid-template-columns: 1fr 70px 55px 75px !important;
         align-items: center !important;
         height: 48px !important;
-        padding: 0 12px !important;
-        gap: 4px !important;
+        padding: 0 8px !important; /* 稍微減少左右內距，爭取空間 */
+        gap: 2px !important;
     }
-    #members-table td:nth-of-type(1) { font-size: 15px !important; font-weight: bold !important; color: #2563eb !important; }
-    #members-table td:nth-of-type(2) { font-size: 12px !important; color: #9ca3af !important; text-align: right !important; padding-right: 8px !important; font-family: monospace !important; }
+
+    /* Col 1: 名字 (自動填滿剩餘空間) */
+    #members-table td:nth-of-type(1) {
+        font-size: 15px !important;
+        font-weight: bold !important;
+        color: #2563eb !important;
+        padding-left: 4px !important;
+    }
+
+    /* Col 2: ID (縮小到 70px，靠右) */
+    #members-table td:nth-of-type(2) {
+        font-size: 11px !important; /* 字稍微縮小一點點 */
+        color: #9ca3af !important;
+        text-align: right !important;
+        padding-right: 4px !important;
+        font-family: monospace !important;
+    }
     #members-table td:nth-of-type(2)::before { content: "#" !important; color: #e5e7eb !important; }
-    #members-table td:nth-of-type(3) { display: flex !important; justify-content: center !important; }
-    #members-table td:nth-of-type(3) span, #members-table td:nth-of-type(3) {
-        font-size: 11px !important; color: #64748b !important; background: #f1f5f9 !important;
-        padding: 2px 0 !important; width: 100% !important; border-radius: 4px !important;
-        text-align: center !important; height: 20px !important; line-height: 20px !important;
+
+    /* Col 3: 公會 (縮小到 55px) */
+    #members-table td:nth-of-type(3) span, 
+    #members-table td:nth-of-type(3) {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        font-size: 11px !important;
+        color: #64748b !important;
+        background: #f1f5f9 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        border-radius: 4px !important;
+        height: 20px !important;
     }
-    #members-table td:nth-of-type(5) { text-align: right !important; }
-    #members-table .actions { justify-content: flex-end !important; gap: 6px !important; }
+
+    /* Col 4: 按鈕 (加大到 75px，確保兩顆按鈕放得下) */
+    #members-table td:nth-of-type(5) { 
+        text-align: right !important;
+        overflow: visible !important; /* ✨ 關鍵：允許按鈕陰影或邊框超出 */
+    }
+    #members-table .actions { 
+        justify-content: flex-end !important; 
+        gap: 8px !important; /* 按鈕之間拉開一點距離，比較好按 */
+        padding-right: 2px !important;
+    }
+    
+    /* 隱藏花朵 */
     #members-table td:nth-of-type(4) { display: none !important; }
 
 
     /* =========================================
-       🌸 花朵清單 (Grid Area 完美佈局)
-       目標：讓 [等級] [分數] 緊密排列，就像一句話
+       🌸 花朵清單 (維持完美 Grid Area)
        ========================================= */
     #flowers-table tr {
         display: grid !important;
-        /* 定義4欄寬度：等級(自動) 分數(自動) 擁有者(剩餘空間) 按鈕(自動) */
         grid-template-columns: max-content max-content 1fr auto !important;
         grid-template-rows: auto auto !important;
         height: auto !important;
-        min-height: 52px !important; /* 稍微增加一點高度讓文字呼吸 */
+        min-height: 52px !important;
         padding: 8px 12px !important;
-        gap: 2px 6px !important; /* 上下間距2px，左右間距6px */
+        gap: 2px 6px !important;
         align-content: center !important;
     }
-
-    /* 1. 花名：跨越前3欄 (Grid Area) */
-    #flowers-table td:nth-of-type(1) {
-        grid-column: 1 / 4 !important; /* 從第1條線跨到第4條線 */
-        grid-row: 1 / 2 !important;
-        font-size: 15px !important;
-        font-weight: bold !important;
-        color: #2563eb !important; /* 統一改成藍色，跟競賽一樣整齊 */
-        margin-bottom: 2px !important;
-        line-height: 1.3 !important;
+    #flowers-table td:nth-of-type(1) { /* 花名 */
+        grid-column: 1 / 4 !important; grid-row: 1 / 2 !important;
+        font-size: 15px !important; font-weight: bold !important; color: #2563eb !important;
+        margin-bottom: 2px !important; line-height: 1.3 !important;
     }
-
-    /* 2. 等級：第2行，第1格 */
-    #flowers-table td:nth-of-type(3) {
-        grid-column: 1 / 2 !important;
-        grid-row: 2 / 3 !important;
-        font-size: 12px !important;
-        color: #4b5563 !important; /* 深灰 */
+    #flowers-table td:nth-of-type(3) { /* 等級 */
+        grid-column: 1 / 2 !important; grid-row: 2 / 3 !important;
+        font-size: 12px !important; color: #4b5563 !important;
     }
-
-    /* 3. 分數：第2行，第2格 (緊貼等級) */
-    #flowers-table td:nth-of-type(4) {
-        grid-column: 2 / 3 !important;
-        grid-row: 2 / 3 !important;
-        font-size: 12px !important;
-        color: #6b7280 !important; /* 淺灰 */
-        padding-left: 0 !important; /* ✨ 移除原本的80px推擠 */
-        pointer-events: none !important;
+    #flowers-table td:nth-of-type(4) { /* 分數 */
+        grid-column: 2 / 3 !important; grid-row: 2 / 3 !important;
+        font-size: 12px !important; color: #6b7280 !important; padding-left: 0 !important; pointer-events: none !important;
     }
     #flowers-table td:nth-of-type(4)::after { content: "分"; font-size: 11px; }
-
-    /* 4. 擁有者：第2行，第3格 (靠右，填滿剩餘空間) */
-    #flowers-table td:nth-of-type(2) {
-        display: block !important;
-        grid-column: 3 / 4 !important;
-        grid-row: 2 / 3 !important;
-        font-size: 11px !important;
-        color: #93c5fd !important;
-        text-align: right !important; /* 靠右對齊 */
-        padding-right: 8px !important;
+    #flowers-table td:nth-of-type(2) { /* 擁有者 */
+        display: block !important; grid-column: 3 / 4 !important; grid-row: 2 / 3 !important;
+        font-size: 11px !important; color: #93c5fd !important; text-align: right !important; padding-right: 8px !important;
     }
     #flowers-table td:nth-of-type(2)::before { content: "👤"; font-size: 10px; margin-right:2px; }
-
-    /* 5. 按鈕：跨越兩行，放在最右邊 */
-    #flowers-table td:nth-of-type(9) {
-        grid-column: 4 / 5 !important;
-        grid-row: 1 / 3 !important;
-        align-self: center !important;
+    #flowers-table td:nth-of-type(9) { /* 按鈕 */
+        grid-column: 4 / 5 !important; grid-row: 1 / 3 !important; align-self: center !important;
     }
-
-    /* 隱藏次要資訊 */
     #flowers-table td:nth-of-type(5), #flowers-table td:nth-of-type(6),
     #flowers-table td:nth-of-type(7), #flowers-table td:nth-of-type(8) { display: none !important; }
 
 
     /* =========================================
-       🏆 競賽清單 (保持與花朵一致的結構)
+       🏆 競賽清單
        ========================================= */
     #competitions-table tr {
         display: grid !important;
@@ -831,16 +837,16 @@
         gap: 2px !important;
         align-content: center !important;
     }
-    #competitions-table td:nth-of-type(1) { /* 成員名 */
+    #competitions-table td:nth-of-type(1) {
         grid-column: 1 / 2 !important; grid-row: 1 / 2 !important;
         font-size: 15px !important; font-weight: bold !important; color: #2563eb !important;
         margin-bottom: 2px !important; line-height: 1.3 !important;
     }
-    #competitions-table td:nth-of-type(2) { /* 花朵列表 */
+    #competitions-table td:nth-of-type(2) {
         grid-column: 1 / 2 !important; grid-row: 2 / 3 !important;
         font-size: 12px !important; color: #6b7280 !important;
     }
-    #competitions-table td:nth-of-type(3) { /* 按鈕 */
+    #competitions-table td:nth-of-type(3) {
         grid-column: 2 / 3 !important; grid-row: 1 / 3 !important; align-self: center !important;
     }
 
@@ -858,11 +864,12 @@
     .form-container input, .form-container select { height: 38px !important; }
     .form-grid { display: flex !important; flex-direction: column !important; gap: 8px !important; }
 }
+</style>
 </head>
 <body>
     <div class="container">
         <!-- 標題和登入區 -->
-        <div class="header">
+        <div class="er">
             <h1>朝朝網頁試用(限會長.會不時清理)</h1>
             <div class="login-area">
                 <div id="loginButton">
@@ -919,7 +926,7 @@
                         </button>
                     </div>
                     <table>
-                        <thead>
+                        <t>
                             <tr>
                                 <th>遊戲名稱</th>
                                 <th>遊戲ID</th>
@@ -927,7 +934,7 @@
                                 <th class="center">擁有花</th>
                                 <th>操作</th>
                             </tr>
-                        </thead>
+                        </t>
                         <tbody id="members-table"></tbody>
                     </table>
                 </div> <div id="flowers-content" class="content">
@@ -944,7 +951,7 @@
                     </div>
                     <div id="flower-form-box" class="flower-form-box hidden"></div>
                     <table>
-                        <thead>
+                        <t>
                             <tr>
                                 <th>花朵名稱</th>
                                 <th>誰擁有</th>
@@ -960,7 +967,7 @@
                                 <th>來源</th>
                                 <th class="center">操作</th>
                             </tr>
-                        </thead>
+                        </t>
                         <tbody id="flowers-table"></tbody>
                     </table>
                 </div>
@@ -1001,13 +1008,13 @@
                     </div>
 
                     <table>
-                        <thead>
+                        <t>
                             <tr>
                                 <th>成員名稱</th>
                                 <th>選擇的花朵</th>
                                 <th class="center">操作</th>
                             </tr>
-                        </thead>
+                        </t>
                         <tbody id="competitions-table"></tbody>
                     </table>
                 </div>
@@ -1955,7 +1962,7 @@ function renderFlowers() {
                         const gradeColor = getGradeColorCode(flower.grade);
 
                         const html = `
-                                    <div class="modal-header">
+                                    <div class="modal-er">
                                         <div class="modal-subtitle">花朵檔案</div>
                                         <div class="modal-title">${flower.name}</div>
                                     </div>
@@ -1991,7 +1998,7 @@ function renderFlowers() {
                         }).join('');
 
                         const html = `
-                                    <div class="modal-header">
+                                    <div class="modal-er">
                                         <div class="modal-subtitle">本週競賽紀錄</div>
                                         <div class="modal-title">${comp.memberName}</div>
                                     </div>
@@ -2093,7 +2100,7 @@ function renderFlowers() {
                         const flowerTags = generateFlowerTags(member.ownedFlowers);
 
                         const html = `
-                                    <div class="modal-header">
+                                    <div class="modal-er">
                                         <div class="modal-subtitle">成員資訊</div>
                                         <div class="modal-title">${member.gameName}</div>
                                     </div>
@@ -2209,7 +2216,7 @@ function openDistributeModal(flowerId) {
     }).join('');
 
     const html = `
-        <div class="modal-header">
+        <div class="modal-er">
             <div class="modal-subtitle">批量管理擁有者</div>
             <div class="modal-title" style="color:#2563eb;">${flower.name}</div>
         </div>
@@ -2305,6 +2312,7 @@ function toggleAllDistribute(checked) {
                 </script>
 </body>
 </html>
+
 
 
 
