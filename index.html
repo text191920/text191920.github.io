@@ -690,13 +690,16 @@
             }
 
 /* =========================================
-   📱 極速條列版 RWD：高密度顯示 (max-width: 1024px)
+   📱 完美修復版 RWD (max-width: 1024px)
+   1. 修復新增表單被壓縮重疊的 bug
+   2. 分會名稱強制不換行
+   3. 花朵清單顯示擁有者摘要
    ========================================= */
 @media screen and (max-width: 1024px) {
-    /* 1. 隱藏原本的表頭 */
+    /* 1. 隱藏表頭 */
     thead { display: none !important; }
 
-    /* 2. 每一列 (tr) 變成細長條 */
+    /* 2. 重置所有表格結構為 Flex/Grid */
     tbody tr {
         display: flex !important;
         align-items: center !important;
@@ -704,56 +707,12 @@
         background: #ffffff !important;
         border-bottom: 1px solid #e5e7eb !important;
         margin: 0 !important;
-        padding: 0 8px !important;
+        padding: 0 10px !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
     }
 
-    /* 3. 所有格子歸零設定 */
-    tbody td {
-        display: block !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        background: transparent !important;
-        height: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-    }
-    /* 隱藏 CSS 自動產生的標籤 (例如 "遊戲名稱:")，省空間 */
-    tbody td::before { display: none !important; }
-
-
-/* =========================================
-   📱 穩如泰山版 RWD：Grid 網格排版 (max-width: 1024px)
-   修復文字重疊亂碼問題，自動適應內容高度
-   ========================================= */
-@media screen and (max-width: 1024px) {
-    /* 1. 隱藏表頭 */
-    thead { display: none !important; }
-
-    /* 2. 每一列 (tr) 變成網格容器 */
-    tbody tr {
-        display: grid !important;
-        /* 定義兩欄：左邊內容區 (自動伸縮)，右邊按鈕區 (固定大小) */
-        grid-template-columns: 1fr auto !important;
-        /* 定義兩列：上層 (名字)，下層 (詳細資訊) */
-        grid-template-rows: auto auto !important;
-        
-        background: #ffffff !important;
-        border-bottom: 1px solid #e5e7eb !important;
-        margin: 0 !important;
-        padding: 8px 12px !important; /* 增加內距，避免貼邊 */
-        width: 100% !important;
-        box-sizing: border-box !important;
-        height: auto !important; /* ✨ 關鍵：高度自動，絕不重疊 */
-        min-height: 55px !important; /* 設定最小高度 */
-        gap: 2px !important; /* 上下行之間的間距 */
-    }
-
-    /* 3. 重置所有格子 */
+    /* 3. 重置格子樣式 */
     tbody td {
         display: block !important;
         border: none !important;
@@ -761,152 +720,217 @@
         margin: 0 !important;
         background: transparent !important;
         text-align: left !important;
-        white-space: nowrap !important; /* 預設不換行 */
+        white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
     }
     tbody td::before { display: none !important; }
 
+
     /* =========================================
-       👥 成員清單 (單行模式：一頁20+)
+       👥 成員清單
        ========================================= */
     #members-table tr {
-        display: flex !important; /* 成員清單維持 Flex 單行最省空間 */
-        align-items: center !important;
-        justify-content: space-between !important;
-        height: 44px !important;
-        padding: 0 10px !important;
+        height: 48px !important; /* 固定高度 */
+        gap: 8px !important;
     }
 
     /* 名字 */
     #members-table td:nth-of-type(1) {
-        flex: 1 !important;
+        flex: 1 !important; /* 佔據剩餘空間 */
         font-size: 15px !important;
         font-weight: bold !important;
         color: #2563eb !important;
-        margin-right: 8px !important;
+        min-width: 0 !important; /* 允許縮小 */
     }
-    
-    /* 公會 (小標籤) */
+
+    /* ID (顯示在名字旁或下方，這裡維持單行顯示) */
+    #members-table td:nth-of-type(2) {
+        display: block !important;
+        width: 80px !important; /* 固定寬度給 ID */
+        font-size: 12px !important;
+        color: #9ca3af !important;
+    }
+    #members-table td:nth-of-type(2)::before { content: "#" !important; color: #d1d5db !important; }
+
+    /* 公會 (修復：強制不換行) */
     #members-table td:nth-of-type(3) {
         width: auto !important;
+        min-width: fit-content !important; /* ✨ 關鍵：寬度依內容而定 */
+        flex-shrink: 0 !important;         /* ✨ 關鍵：禁止被壓縮 */
+        white-space: nowrap !important;    /* ✨ 關鍵：禁止換行 */
         font-size: 12px !important;
         color: #64748b !important;
         background: #f1f5f9 !important;
-        padding: 2px 6px !important;
-        border-radius: 4px !important;
-        margin-right: 8px !important;
+        padding: 2px 8px !important;
+        border-radius: 12px !important;
+        text-align: center !important;
     }
 
-    /* 隱藏 ID, 花朵 */
-    #members-table td:nth-of-type(2),
+    /* 花朵 (隱藏) */
     #members-table td:nth-of-type(4) { display: none !important; }
 
-    /* 按鈕區 */
-    #members-table td:nth-of-type(5) { width: auto !important; }
-    #members-table .actions { gap: 8px !important; }
+    /* 按鈕 */
+    #members-table td:nth-of-type(5) { 
+        width: auto !important; 
+        flex-shrink: 0 !important;
+    }
+    #members-table .actions { gap: 4px !important; }
 
 
     /* =========================================
-       🌸 花朵清單 (雙層模式：修復重疊)
+       🌸 花朵清單 (新增：顯示擁有者)
        ========================================= */
-    
-    /* 花名：佔據第一列 (Row 1)，跨滿左邊空間 */
+    #flowers-table tr {
+        display: grid !important; /* 改回 Grid 以便排版 */
+        grid-template-columns: 1fr auto !important;
+        grid-template-rows: auto auto !important;
+        height: 55px !important;
+        padding: 8px 10px !important;
+        align-items: center !important;
+    }
+
+    /* 花名 (左上) */
     #flowers-table td:nth-of-type(1) {
         grid-column: 1 / 2 !important;
         grid-row: 1 / 2 !important;
-        font-size: 16px !important;
+        font-size: 15px !important;
         font-weight: bold !important;
         color: #374151 !important;
-        margin-bottom: 4px !important; /* 與下方拉開距離 */
     }
 
-    /* 等級：佔據第二列 (Row 2) 的開頭 */
+    /* 等級 (左下) */
     #flowers-table td:nth-of-type(3) {
         grid-column: 1 / 2 !important;
         grid-row: 2 / 3 !important;
-        font-size: 13px !important;
+        font-size: 12px !important;
         width: auto !important;
         display: inline-block !important;
+        margin-top: 4px !important;
     }
 
-    /* 分數：佔據第二列 (Row 2)，用 margin 推開，避免與等級重疊 */
+    /* 分數 (左下，接在等級後) */
     #flowers-table td:nth-of-type(4) {
         grid-column: 1 / 2 !important;
         grid-row: 2 / 3 !important;
-        font-size: 13px !important;
+        font-size: 12px !important;
         color: #6b7280 !important;
-        padding-left: 85px !important; /* ✨ 這裡推開距離，依等級長度調整 */
-        pointer-events: none !important; /* 讓點擊穿透 */
+        padding-left: 85px !important; /* 推開距離 */
+        margin-top: 4px !important;
+        pointer-events: none !important;
     }
-    #flowers-table td:nth-of-type(4)::after { content: " 分"; font-size: 12px; }
+    #flowers-table td:nth-of-type(4)::after { content: " 分"; font-size: 11px; }
 
-    /* 按鈕區：佔據右側，跨越兩列 (Row 1-2) */
-    #flowers-table td:nth-of-type(9) {
-        grid-column: 2 / 3 !important;
-        grid-row: 1 / 3 !important;
-        align-self: center !important; /* 垂直置中 */
-        justify-self: end !important;
-    }
-
-    /* 隱藏次要資訊 */
-    #flowers-table td:nth-of-type(2),
-    #flowers-table td:nth-of-type(5),
-    #flowers-table td:nth-of-type(6),
-    #flowers-table td:nth-of-type(7),
-    #flowers-table td:nth-of-type(8) { display: none !important; }
-
-
-    /* =========================================
-       🏆 競賽清單 (雙層模式：修復重疊)
-       ========================================= */
-
-    /* 成員名稱：Row 1 */
-    #competitions-table td:nth-of-type(1) {
-        grid-column: 1 / 2 !important;
-        grid-row: 1 / 2 !important;
-        font-size: 16px !important;
-        font-weight: bold !important;
-        color: #2563eb !important;
-        margin-bottom: 4px !important;
-    }
-
-    /* 花朵摘要：Row 2 */
-    #competitions-table td:nth-of-type(2) {
-        grid-column: 1 / 2 !important;
-        grid-row: 2 / 3 !important;
-        font-size: 13px !important;
-        color: #6b7280 !important;
+    /* ✨ 新增：擁有者摘要 (右下，填補空位) ✨ */
+    #flowers-table td:nth-of-type(2) {
+        display: block !important; /* 顯示出來 */
+        grid-column: 1 / 2 !important; /* 放在第一欄 */
+        grid-row: 2 / 3 !important;    /* 放在第二列 (下排) */
+        
+        font-size: 12px !important;
+        color: #93c5fd !important; /* 淺藍色，比較不搶眼 */
+        text-align: right !important; /* 靠右對齊 */
+        padding-right: 12px !important; /* 避免碰到隔壁的格子 */
+        margin-top: 4px !important;
+        
+        /* 讓它往右邊靠，不要蓋到左邊的分數 */
+        margin-left: auto !important; 
+        max-width: 140px !important; /* 限制寬度 */
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        padding-right: 10px !important; /* 避免文字碰到右邊按鈕 */
+    }
+    /* 在前面加個小圖示 */
+    #flowers-table td:nth-of-type(2)::before {
+        content: "👤 " !important;
+        font-size: 10px !important;
+        opacity: 0.7 !important;
+        display: inline !important;
     }
 
-    /* 按鈕區：右側跨兩列 */
-    #competitions-table td:nth-of-type(3) {
+    /* 按鈕 (右側垂直置中) */
+    #flowers-table td:nth-of-type(9) {
         grid-column: 2 / 3 !important;
         grid-row: 1 / 3 !important;
         align-self: center !important;
     }
 
+    /* 隱藏其他次要資訊 */
+    #flowers-table td:nth-of-type(5), #flowers-table td:nth-of-type(6),
+    #flowers-table td:nth-of-type(7), #flowers-table td:nth-of-type(8) { display: none !important; }
+
+
     /* =========================================
-       📝 表單救援 (確保編輯時不會壞掉)
+       🏆 競賽清單
        ========================================= */
-    tr.form-row {
-        display: block !important; /* 表單列回復區塊顯示 */
-        height: auto !important;
-        background: #f8fafc !important;
-        border: 2px dashed #cbd5e1 !important;
-        padding: 12px !important;
+    #competitions-table tr {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-rows: auto auto !important;
+        height: 55px !important;
+        padding: 8px 10px !important;
     }
+    #competitions-table td:nth-of-type(1) { /* 名稱 */
+        grid-column: 1 / 2 !important; grid-row: 1 / 2 !important;
+        font-size: 15px !important; font-weight: bold !important; color: #2563eb !important;
+    }
+    #competitions-table td:nth-of-type(2) { /* 花朵 */
+        grid-column: 1 / 2 !important; grid-row: 2 / 3 !important;
+        font-size: 12px !important; color: #6b7280 !important; margin-top: 4px !important; padding-right: 10px !important;
+    }
+    #competitions-table td:nth-of-type(3) { /* 按鈕 */
+        grid-column: 2 / 3 !important; grid-row: 1 / 3 !important; align-self: center !important;
+    }
+
+
+    /* =========================================
+       🛠️ 終極修復：新增/編輯表單 (Form Row)
+       之前表單會壞掉是因為繼承了上面 tr 的 height: 48px 和 grid 設定
+       這裡我們要用最強的權重把它重置回「正常區塊」
+       ========================================= */
+    
+    /* 針對所有表格內的表單列 */
+    #members-table tr.form-row,
+    #flowers-table tr.form-row,
+    #competitions-table tr.form-row {
+        display: block !important;       /* 變回區塊，不要 Grid/Flex */
+        height: auto !important;         /* 高度自動，隨內容長高 */
+        min-height: auto !important;
+        background: #f8fafc !important;  /* 淺灰背景 */
+        border: 2px dashed #cbd5e1 !important;
+        padding: 16px !important;        /* 增加內距 */
+        margin-bottom: 12px !important;
+        position: relative !important;
+        z-index: 10 !important;
+    }
+
+    /* 表單裡面的格子 (td) */
     tr.form-row td {
         display: block !important;
+        width: 100% !important;
         height: auto !important;
         padding: 0 !important;
         margin: 0 !important;
-        white-space: normal !important; /* 允許換行 */
-        overflow: visible !important;
+        border: none !important;
+        white-space: normal !important;  /* 允許換行 */
+        overflow: visible !important;    /* 允許內容凸出來 */
+    }
+
+    /* 表單容器微調 */
+    .form-container {
+        padding: 0 !important; /* 移除多餘內距 */
+    }
+    
+    /* 輸入框排版變成直式 (手機比較好按) */
+    .form-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    
+    /* 確保輸入框高度足夠 */
+    .form-container input, .form-container select {
+        height: 40px !important;
     }
 }
     </style>
@@ -2357,6 +2381,7 @@ function toggleAllDistribute(checked) {
                 </script>
 </body>
 </html>
+
 
 
 
