@@ -689,6 +689,86 @@
                 background-color: #fee2e2;
             }
 
+/* =========================================
+   📱 手機版 RWD 樣式 (卡片式排版)
+   ========================================= */
+@media screen and (max-width: 1024px) {
+    
+    /* 1. 隱藏原本的表格標題 (改成用 CSS 偽元素顯示) */
+    thead {
+        display: none;
+    }
+
+    /* 2. 讓每一列變成一張「卡片」 */
+    tr {
+        display: block;
+        margin-bottom: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* 3. 讓每一格變成卡片裡的一行 */
+    td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f3f4f6;
+        padding: 12px !important;
+        height: auto !important;     /* 解除 30px 限制 */
+        line-height: 1.5 !important;
+        white-space: normal !important; /* 允許換行 */
+        max-width: none !important;
+        font-size: 14px;
+        text-align: right; /* 內容靠右 */
+    }
+
+    td:last-child {
+        border-bottom: none;
+        justify-content: center; /* 操作按鈕置中 */
+    }
+
+    /* 4. 利用 CSS 自動補上「欄位名稱」 (讓手機版知道這一格是什麼) */
+    
+    /* --- 成員清單 --- */
+    #members-table td:nth-of-type(1):before { content: "遊戲名稱"; font-weight: bold; color: #6b7280; }
+    #members-table td:nth-of-type(2):before { content: "遊戲ID"; font-weight: bold; color: #6b7280; }
+    #members-table td:nth-of-type(3):before { content: "公會"; font-weight: bold; color: #6b7280; }
+    #members-table td:nth-of-type(4):before { content: "擁有花"; font-weight: bold; color: #6b7280; }
+    #members-table td:nth-of-type(5):before { content: "操作"; font-weight: bold; color: #6b7280; }
+
+    /* --- 花朵清單 --- */
+    #flowers-table td:nth-of-type(1):before { content: "花朵名稱"; font-weight: bold; color: #6b7280; }
+    #flowers-table td:nth-of-type(2):before { content: "誰擁有"; font-weight: bold; color: #6b7280; }
+    #flowers-table td:nth-of-type(3):before { content: "等級"; font-weight: bold; color: #6b7280; }
+    #flowers-table td:nth-of-type(4):before { content: "競賽分數"; font-weight: bold; color: #6b7280; }
+    #flowers-table td:nth-of-type(5):before { content: "上市日期"; font-weight: bold; color: #6b7280; }
+    #flowers-table td:nth-of-type(6):before { content: "花瓶"; font-weight: bold; color: #6b7280; }
+    #flowers-table td:nth-of-type(7):before { content: "備註"; font-weight: bold; color: #6b7280; }
+    #flowers-table td:nth-of-type(8):before { content: "來源"; font-weight: bold; color: #6b7280; }
+    #flowers-table td:nth-of-type(9):before { content: "操作"; font-weight: bold; color: #6b7280; }
+
+    /* --- 本週競賽 --- */
+    #competitions-table td:nth-of-type(1):before { content: "成員名稱"; font-weight: bold; color: #6b7280; }
+    #competitions-table td:nth-of-type(2):before { content: "選擇的花朵"; font-weight: bold; color: #6b7280; }
+    #competitions-table td:nth-of-type(3):before { content: "操作"; font-weight: bold; color: #6b7280; }
+
+    /* 5. 修正操作按鈕在手機上的排列 */
+    .actions {
+        width: 100%;
+        justify-content: flex-end; /* 按鈕靠右 */
+    }
+
+    /* 6. 特殊處理：表單列不要變成卡片，保持原樣但允許捲動 */
+    tr.form-row {
+        display: table-row; 
+    }
+    tr.form-row td {
+        display: table-cell;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -1023,19 +1103,41 @@
                         document.getElementById('password').value = '';
                     }
 
-                    function handleLogout() {
-                        isAuthenticated = false;
-                        document.getElementById('loginButton').classList.remove('hidden');
-                        document.getElementById('logoutArea').classList.add('hidden');
-                        // ✨ 加入這行：隱藏公會管理區
-                        document.getElementById('guild-manager-area').classList.add('hidden');
+function handleLogout() {
+    isAuthenticated = false;
+    
+    // 1. 切換登入/登出按鈕
+    document.getElementById('loginButton').classList.remove('hidden');
+    document.getElementById('logoutArea').classList.add('hidden');
+    
+    // 2. ✨ 關鍵：隱藏公會管理區 (如果有這個區塊的話)
+    const guildArea = document.getElementById('guild-manager-area');
+    if (guildArea) guildArea.classList.add('hidden');
 
-                        renderMembers();
-                    }
-                        // 登出後重新渲染，鎖住按鈕
-                        renderMembers();
-                        renderFlowers();
-                        renderCompetitions();
+    // 3. ✨ 關鍵：關閉所有可能開啟的「新增/編輯表單」
+    // (把目前畫面上所有開啟的 form-row 都移除，避免登出後還停留在編輯畫面)
+    const openForms = document.querySelectorAll('.form-row');
+    openForms.forEach(form => form.remove());
+
+    // 4. ✨ 關鍵：關閉花朵新增區塊 (如果有開的話)
+    const flowerFormBox = document.getElementById('flower-form-box');
+    const flowerBtnText = document.getElementById('flower-btn-text');
+    if (flowerFormBox) {
+        flowerFormBox.classList.add('hidden');
+        flowerFormBox.innerHTML = '';
+    }
+    if (flowerBtnText) flowerBtnText.textContent = '新增花朵資料';
+
+    // 5. 重新渲染所有表格 (這會把鉛筆和刪除按鈕變回鎖頭)
+    renderMembers();
+    renderFlowers();
+    renderCompetitions();
+    
+    // 6. 關閉任何開啟的彈出視窗 (Modal)
+    closeModal();
+
+    alert('已登出管理員');
+}
                     
 
                     // 分頁切換
@@ -2115,3 +2217,4 @@ function toggleAllDistribute(checked) {
                 </script>
 </body>
 </html>
+
