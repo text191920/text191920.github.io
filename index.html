@@ -690,22 +690,50 @@
             }
 
 /* =========================================
-   📱 終極對齊版 RWD (max-width: 1024px)
-   1. 成員清單：標題列 (Thead) 與內容列 (Tbody) 強制 Grid 對齊
-   2. 花朵/競賽：維持卡片式，隱藏標題以防混亂
+   📱 最終修正版 RWD (max-width: 1024px)
+   1. 花朵/競賽：【絕對隱藏】標題列，修復標題堆疊佔位的慘況
+   2. 成員清單：標題列與內容列【完美同步】，不再垂直亂跑
    ========================================= */
 @media screen and (max-width: 1024px) {
-    /* 1. 全局重置：炸開表格屬性 */
-    table, tbody, thead, tr, th, td {
+    /* 1. 全局重置：炸開表格屬性 (這是為了讓內容變卡片) */
+    table, tbody, tr, td, th, thead {
         display: block !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
 
-    /* 預設隱藏所有表頭 (稍後針對成員清單開啟) */
-    thead { display: none !important; }
+    /* ============================================================
+       🛑 關鍵修正：針對不同分頁的標題 (Thead) 做不同處理
+       ============================================================ */
+    
+    /* 1. 花朵清單 & 本週競賽 -> 【完全隱藏標題】 */
+    /* 避免出現那堆「花朵名稱、誰擁有...」的垂直文字 */
+    #flowers-content thead,
+    #competitions-content thead {
+        display: none !important;
+    }
 
-    /* 2. 通用卡片外觀 (給 Tbody 裡的每一行) */
+    /* 2. 成員清單 -> 【顯示標題】但要變 Grid */
+    #members-content thead {
+        display: block !important;
+        margin-bottom: 8px !important;
+    }
+    #members-content thead tr {
+        display: grid !important;
+        /* 欄位寬度鎖死：名字 | ID | 公會 | 按鈕 */
+        grid-template-columns: 1fr 70px 50px 75px !important;
+        gap: 4px !important;
+        padding: 0 10px !important;
+        height: 30px !important;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+
+    /* =========================================
+       🎨 內容卡片樣式 (通用)
+       ========================================= */
     tbody tr {
         background: #ffffff !important;
         margin-bottom: 8px !important;
@@ -713,84 +741,41 @@
         border-radius: 8px !important;
         box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
     }
-
-    /* 清除格子預設樣式 */
     tbody td { border: none !important; padding: 0 !important; background: transparent !important; }
     tbody td::before { display: none !important; }
 
 
     /* =========================================
-       👥 成員清單 (標題與內容完美對齊)
+       👥 成員清單 (內容與標題對齊)
        ========================================= */
-    
-    /* 1. 開啟成員清單的表頭 */
-    #members-content table thead {
-        display: block !important;
-        margin-bottom: 8px !important; /* 跟內容拉開一點距離 */
-    }
-
-    /* 2. 設定「標題列」與「內容列」共用的 Grid 佈局 */
-    /* 欄位：名字(彈性) | ID(70px) | 公會(50px) | 按鈕(75px) */
-    #members-table tr, 
-    #members-content thead tr {
+    #members-table tr {
         display: grid !important;
-        grid-template-columns: 1fr 70px 50px 75px !important; /* ✨ 關鍵：寬度一模一樣 */
-        gap: 4px !important;
+        grid-template-columns: 1fr 70px 50px 75px !important; /* ✨ 必須跟標題一樣 */
         align-items: center !important;
+        height: 50px !important;
         padding: 0 10px !important;
+        gap: 4px !important;
     }
 
-    /* 3. 特別調整內容列的高度 (標題列維持預設) */
-    #members-table tr { height: 50px !important; }
-    #members-content thead tr { height: 30px !important; border: none !important; box-shadow: none !important; background: transparent !important; }
+    /* 標題文字樣式 (Th) */
+    #members-content th { font-size: 12px !important; color: #6b7280 !important; text-align: center !important; }
+    #members-content th:nth-child(1) { text-align: left !important; padding-left: 4px !important; } /* 遊戲名稱 */
+    #members-content th:nth-child(2) { text-align: right !important; padding-right: 4px !important; } /* ID */
+    #members-content th:nth-child(5) { text-align: right !important; } /* 操作 */
+    #members-content th:nth-child(4) { display: none !important; } /* 隱藏「擁有花」標題 */
 
-    /* --- 欄位細節設定 (同時套用到 th 和 td) --- */
-
-    /* Col 1: 名字 */
-    #members-content th:nth-child(1), #members-table td:nth-of-type(1) {
-        text-align: left !important;
-        font-size: 14px !important;
-    }
-    #members-table td:nth-of-type(1) { font-weight: bold !important; color: #2563eb !important; font-size: 15px !important; }
-    #members-content th:nth-child(1) { color: #6b7280 !important; font-size: 12px !important; padding-left: 4px !important; }
-
-    /* Col 2: ID */
-    #members-content th:nth-child(2), #members-table td:nth-of-type(2) {
-        text-align: right !important;
-        padding-right: 4px !important;
-    }
-    #members-table td:nth-of-type(2) { font-size: 12px !important; color: #9ca3af !important; font-family: monospace !important; }
+    /* 內容文字樣式 (Td) */
+    #members-table td:nth-of-type(1) { font-size: 15px !important; font-weight: bold !important; color: #2563eb !important; text-align: left !important; padding-left: 4px !important; }
+    #members-table td:nth-of-type(2) { font-size: 12px !important; color: #9ca3af !important; text-align: right !important; padding-right: 4px !important; font-family: monospace !important; }
     #members-table td:nth-of-type(2)::before { content: "#" !important; color: #e5e7eb !important; }
-    #members-content th:nth-child(2) { color: #6b7280 !important; font-size: 12px !important; }
-
-    /* Col 3: 公會 */
-    #members-content th:nth-child(3), #members-table td:nth-of-type(3) {
-        text-align: center !important;
-    }
-    #members-table td:nth-of-type(3) span, #members-table td:nth-of-type(3) {
-        display: flex !important; justify-content: center !important; align-items: center !important;
-        font-size: 11px !important; color: #64748b !important; background: #f1f5f9 !important;
-        width: 100% !important; border-radius: 4px !important; height: 22px !important; padding: 0 !important;
-    }
-    #members-content th:nth-child(3) { color: #6b7280 !important; font-size: 12px !important; }
-
-    /* Col 4: 擁有花 (隱藏！) */
-    /* ✨ 關鍵：同時隱藏標題的第4格 和 內容的第4格 */
-    #members-content th:nth-child(4), #members-table td:nth-of-type(4) { 
-        display: none !important; 
-    }
-
-    /* Col 5: 操作 */
-    #members-content th:nth-child(5), #members-table td:nth-of-type(5) {
-        text-align: right !important;
-    }
-    #members-table td:nth-of-type(5) { overflow: visible !important; }
+    #members-table td:nth-of-type(3) span, #members-table td:nth-of-type(3) { display: flex !important; justify-content: center !important; align-items: center !important; font-size: 11px !important; color: #64748b !important; background: #f1f5f9 !important; padding: 0 !important; width: 100% !important; border-radius: 4px !important; height: 22px !important; }
+    #members-table td:nth-of-type(4) { display: none !important; } /* 隱藏花朵 */
+    #members-table td:nth-of-type(5) { text-align: right !important; overflow: visible !important; }
     #members-table .actions { justify-content: flex-end !important; gap: 6px !important; }
-    #members-content th:nth-child(5) { display: none !important; } /* 手機版標題列隱藏「操作」二字，保持乾淨 */
 
 
     /* =========================================
-       🌸 花朵 & 🏆 競賽 (維持隱藏標題，使用卡片佈局)
+       🌸 花朵清單 (卡片式)
        ========================================= */
     #flowers-table tr {
         display: grid !important; grid-template-columns: 1fr auto !important; grid-template-rows: auto auto !important;
@@ -813,10 +798,13 @@
     #flowers-table td:nth-of-type(9) { /* 按鈕 */
         grid-column: 2 / 3 !important; grid-row: 1 / 3 !important; align-self: center !important; padding-left: 8px !important;
     }
-    /* 隱藏花朵清單的多餘欄位 */
+    /* 隱藏其他 */
     #flowers-table td:nth-of-type(5), #flowers-table td:nth-of-type(6), #flowers-table td:nth-of-type(7), #flowers-table td:nth-of-type(8) { display: none !important; }
 
-    /* 競賽清單 */
+
+    /* =========================================
+       🏆 競賽清單
+       ========================================= */
     #competitions-table tr {
         display: grid !important; grid-template-columns: 1fr auto !important; grid-template-rows: auto auto !important;
         min-height: 60px !important; padding: 10px 12px !important; gap: 4px !important; align-content: center !important;
@@ -825,14 +813,21 @@
     #competitions-table td:nth-of-type(2) { grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; font-size: 12px !important; color: #6b7280 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; width: 90% !important; }
     #competitions-table td:nth-of-type(3) { grid-column: 2 / 3 !important; grid-row: 1 / 3 !important; align-self: center !important; padding-left: 8px !important; }
 
-    /* 通用按鈕 */
-    .edit-btn, .delete-btn { font-size: 15px !important; padding: 6px !important; background: #f9fafb !important; border-radius: 6px !important; border: 1px solid #e5e7eb !important; }
 
-    /* 表單救援 */
-    tr.form-row { display: block !important; height: auto !important; width: 100% !important; background: #f8fafc !important; border: 2px dashed #cbd5e1 !important; padding: 16px !important; margin-bottom: 16px !important; }
+    /* =========================================
+       📝 表單救援 (確保新增按鈕按下去是正常的)
+       ========================================= */
+    #members-table tr.form-row, #flowers-table tr.form-row, #competitions-table tr.form-row {
+        display: block !important; height: auto !important; width: 100% !important;
+        background: #f8fafc !important; border: 2px dashed #cbd5e1 !important;
+        padding: 16px !important; margin-bottom: 16px !important;
+    }
     tr.form-row td { display: block !important; width: 100% !important; height: auto !important; white-space: normal !important; overflow: visible !important; padding: 0 !important; }
     .form-container input, .form-container select { height: 40px !important; }
     .form-grid { display: flex !important; flex-direction: column !important; gap: 12px !important; }
+    
+    /* 按鈕 */
+    .edit-btn, .delete-btn { font-size: 15px !important; padding: 6px !important; background: #f9fafb !important; border-radius: 6px !important; border: 1px solid #e5e7eb !important; margin-left: 2px !important; }
 }
 </style>
 </head>
@@ -2282,6 +2277,7 @@ function toggleAllDistribute(checked) {
                 </script>
 </body>
 </html>
+
 
 
 
