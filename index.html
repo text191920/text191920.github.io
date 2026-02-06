@@ -691,114 +691,111 @@
         
 /* =========================================
    📱 最終完美版 RWD (max-width: 1024px)
-   1. 【全面隱藏標題】：成員、花朵、競賽的所有表頭全部隱藏，畫面最乾淨
-   2. 【救回篩選器】：修復競賽頁面公會篩選消失的問題
-   3. 【精準對齊】：維持內容的 Grid 對齊
+   1. 【核彈級隱藏】：強制消滅所有標題列，不留痕跡
+   2. 【競賽/花朵】：橫向滿版卡片，對齊標題
    ========================================= */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
     /* 1. 全局重置 */
-    table, tbody, tr, td, th, thead {
+    table, tbody, tr, td {
         display: block !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
 
-    /* 🚫 核心：隱藏所有頁面的表頭 (包含成員清單) 🚫 */
-    thead { display: none !important; }
+    /* 🛑 核心修正：讓表頭徹底消失 🛑 */
+    /* 使用多重選擇器，確保沒有任何 CSS 能蓋過它 */
+    thead, thead tr, thead th, th {
+        display: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
+        position: absolute !important; /* 踢出文檔流 */
+    }
 
-    /* 2. 通用卡片外觀 */
+    /* 2. 通用單行卡片 (橫向滿版) */
     tbody tr {
         background: #ffffff !important;
-        margin-bottom: 8px !important;
-        border: 1px solid #e5e7eb !important;
-        border-radius: 8px !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+        margin-bottom: 0 !important; /* 緊密排列 */
+        border-bottom: 1px solid #e5e7eb !important;
+        height: 55px !important;
+        padding: 0 10px !important;
     }
-    tbody td { border: none !important; padding: 0 !important; background: transparent !important; }
+
+    /* 清除格子樣式 */
+    tbody td { 
+        border: none !important; padding: 0 !important; background: transparent !important;
+        white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+    }
     tbody td::before { display: none !important; }
 
-
     /* =========================================
-       👥 成員清單 (無標題，純內容對齊)
+       👥 成員清單
        ========================================= */
     #members-table tr {
         display: grid !important;
-        /* 欄位：名字 | ID | 公會 | 按鈕 */
-        grid-template-columns: 1fr 70px 50px 75px !important;
-        gap: 4px !important;
+        grid-template-columns: 1fr 75px 50px 75px !important;
+        gap: 5px !important;
         align-items: center !important;
-        padding: 0 10px !important;
-        height: 50px !important;
     }
-
-    /* 欄位樣式 */
-    #members-table td:nth-of-type(1) { font-size: 15px !important; font-weight: bold !important; color: #2563eb !important; padding-left: 4px !important; } /* 名字 */
-    #members-table td:nth-of-type(2) { font-size: 12px !important; color: #9ca3af !important; text-align: right !important; padding-right: 4px !important; font-family: monospace !important; } /* ID */
+    #members-table td:nth-of-type(1) { font-size: 15px !important; font-weight: bold !important; color: #2563eb !important; text-align: left !important; }
+    #members-table td:nth-of-type(2) { font-size: 11px !important; color: #9ca3af !important; text-align: right !important; font-family: monospace !important; }
     #members-table td:nth-of-type(2)::before { content: "#" !important; color: #e5e7eb !important; }
-    #members-table td:nth-of-type(3) span, #members-table td:nth-of-type(3) { display: flex !important; justify-content: center !important; align-items: center !important; font-size: 11px !important; color: #64748b !important; background: #f1f5f9 !important; width: 100% !important; border-radius: 4px !important; height: 22px !important; padding: 0 !important; } /* 公會 */
-    #members-table td:nth-of-type(4) { display: none !important; } /* 隱藏花朵 */
-    #members-table td:nth-of-type(5) { text-align: right !important; overflow: visible !important; } /* 按鈕 */
+    #members-table td:nth-of-type(3) span, #members-table td:nth-of-type(3) { display: flex !important; justify-content: center !important; align-items: center !important; font-size: 11px !important; color: #64748b !important; background: #f1f5f9 !important; width: 100% !important; border-radius: 4px !important; height: 22px !important; padding: 0 !important; }
+    #members-table td:nth-of-type(4) { display: none !important; }
+    #members-table td:nth-of-type(5) { text-align: right !important; overflow: visible !important; }
     #members-table .actions { justify-content: flex-end !important; gap: 6px !important; }
 
+    /* =========================================
+       🌸 花朵清單
+       ========================================= */
+    #flowers-table tr {
+        display: grid !important;
+        grid-template-columns: 1fr 80px 75px !important;
+        gap: 5px !important;
+        align-items: center !important;
+    }
+    /* 花名 (左) */
+    #flowers-table td:nth-of-type(1) {
+        display: flex !important; flex-direction: column !important; justify-content: center !important;
+        font-size: 14px !important; font-weight: bold !important; color: #2563eb !important; line-height: 1.2 !important;
+    }
+    #flowers-table td:nth-of-type(1)::after { content: "可點擊查看詳情"; font-size: 10px !important; color: #cbd5e1 !important; font-weight: normal !important; margin-top: 2px !important; }
+    /* 擁有者 (中) */
+    #flowers-table td:nth-of-type(2) { display: block !important; font-size: 11px !important; color: #93c5fd !important; text-align: right !important; }
+    #flowers-table td:nth-of-type(2)::before { content: "👤 "; font-size: 10px; }
+    /* 按鈕 (右) */
+    #flowers-table td:nth-of-type(9) { text-align: right !important; overflow: visible !important; }
+    /* 隱藏其他 */
+    #flowers-table td:nth-of-type(3), #flowers-table td:nth-of-type(4), #flowers-table td:nth-of-type(5), #flowers-table td:nth-of-type(6), #flowers-table td:nth-of-type(7), #flowers-table td:nth-of-type(8) { display: none !important; }
 
     /* =========================================
-       🌸 花朵 & 🏆 競賽
+       🏆 競賽清單
        ========================================= */
-    /* 花朵清單 */
-    #flowers-table tr { display: grid !important; grid-template-columns: 1fr auto !important; grid-template-rows: auto auto !important; min-height: 60px !important; padding: 10px 12px !important; gap: 4px !important; align-content: center !important; }
-    #flowers-table td:nth-of-type(1) { grid-column: 1 / 2 !important; grid-row: 1 / 2 !important; font-size: 15px !important; font-weight: bold !important; color: #2563eb !important; margin-bottom: 4px !important; }
-    #flowers-table td:nth-of-type(3) { grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; font-size: 12px !important; color: #4b5563 !important; display: flex !important; align-items: center !important; width: fit-content !important; }
-    #flowers-table td:nth-of-type(4) { grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; font-size: 12px !important; color: #9ca3af !important; pointer-events: none !important; margin-left: 75px !important; }
-    #flowers-table td:nth-of-type(4)::after { content: "分"; font-size: 11px; }
-    #flowers-table td:nth-of-type(2) { display: block !important; grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; font-size: 12px !important; color: #93c5fd !important; text-align: right !important; padding-right: 8px !important; margin-left: 120px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-    #flowers-table td:nth-of-type(2)::before { content: "👤"; font-size: 10px; margin-right:2px; }
-    #flowers-table td:nth-of-type(9) { grid-column: 2 / 3 !important; grid-row: 1 / 3 !important; align-self: center !important; padding-left: 8px !important; }
-    #flowers-table td:nth-of-type(5), #flowers-table td:nth-of-type(6), #flowers-table td:nth-of-type(7), #flowers-table td:nth-of-type(8) { display: none !important; }
-
-    /* 競賽清單 */
-    #competitions-table tr { display: grid !important; grid-template-columns: 1fr auto !important; grid-template-rows: auto auto !important; min-height: 60px !important; padding: 10px 12px !important; gap: 4px !important; align-content: center !important; }
-    #competitions-table td:nth-of-type(1) { grid-column: 1 / 2 !important; grid-row: 1 / 2 !important; font-size: 15px !important; font-weight: bold !important; color: #2563eb !important; }
-    #competitions-table td:nth-of-type(2) { grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; font-size: 12px !important; color: #6b7280 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; width: 90% !important; }
-    #competitions-table td:nth-of-type(3) { grid-column: 2 / 3 !important; grid-row: 1 / 3 !important; align-self: center !important; padding-left: 8px !important; }
-
-
-    /* =========================================
-       🔍 搜尋與篩選器修復 (救回公會選單)
-       ========================================= */
-    .search-bar {
-        display: flex !important;
-        flex-wrap: wrap !important; /* 允許換行，避免擠爆 */
-        gap: 8px !important;
-        margin-bottom: 12px !important;
+    #competitions-table tr {
+        display: grid !important;
+        grid-template-columns: 90px 1fr 75px !important;
+        gap: 5px !important;
+        align-items: center !important;
     }
+    #competitions-table td:nth-of-type(1) { font-size: 14px !important; font-weight: bold !important; color: #2563eb !important; }
+    #competitions-table td:nth-of-type(2) { font-size: 12px !important; color: #6b7280 !important; }
+    #competitions-table td:nth-of-type(3) { text-align: right !important; }
 
-    /* ✨ 關鍵：強制顯示公會篩選器，並給它寬度 ✨ */
-    #comp-guild-filter {
-        display: block !important;
-        width: 100px !important; /* 手機版不需要太寬 */
-        height: 40px !important;
-        padding: 0 8px !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 8px !important;
-        background-color: white !important;
-        flex-shrink: 0 !important; /* 禁止被壓縮 */
+    /* 表單救援 */
+    #members-table tr.form-row, #flowers-table tr.form-row, #competitions-table tr.form-row {
+        display: block !important; height: auto !important; background: #f8fafc !important; border: 2px dashed #cbd5e1 !important; padding: 16px !important; margin-bottom: 16px !important;
     }
-
-    /* 搜尋框 */
-    .search-wrapper {
-        flex: 1 !important; /* 佔據剩餘空間 */
-        min-width: 150px !important;
-    }
-
-
-    /* =========================================
-       📝 表單救援
-       ========================================= */
-    tr.form-row { display: block !important; height: auto !important; width: 100% !important; background: #f8fafc !important; border: 2px dashed #cbd5e1 !important; padding: 16px !important; margin-bottom: 16px !important; }
-    tr.form-row td { display: block !important; width: 100% !important; height: auto !important; white-space: normal !important; overflow: visible !important; padding: 0 !important; }
+    tr.form-row td { display: block !important; width: 100% !important; white-space: normal !important; overflow: visible !important; }
     .form-container input, .form-container select { height: 40px !important; }
-    .form-grid { display: flex !important; flex-direction: column !important; gap: 12px !important; }
     .edit-btn, .delete-btn { font-size: 15px !important; padding: 6px !important; background: #f9fafb !important; border-radius: 6px !important; border: 1px solid #e5e7eb !important; margin-left: 2px !important; }
+    
+    /* 救回公會篩選器 */
+    #comp-guild-filter { display: block !important; width: 100px !important; height: 36px !important; flex-shrink: 0 !important; border: 1px solid #ccc !important; }
+    .search-bar { flex-wrap: nowrap !important; gap: 8px !important; }
 }
 </style>
 </head>
@@ -1834,39 +1831,74 @@ function renderFlowers() {
                     }
 
                     // 渲染競賽清單
-                    function renderCompetitions() {
-                        const tbody = document.getElementById('competitions-table');
-                        const guildFilter = document.getElementById('comp-guild-filter').value;
+// ==================== 🏆 新版競賽清單渲染邏輯 ====================
+function renderCompetitions() {
+    const tbody = document.getElementById('competitions-table');
+    const guildFilter = document.getElementById('comp-guild-filter').value;
+    const flowerSearch = document.getElementById('competitions-flower-search') ? document.getElementById('competitions-flower-search').value.toLowerCase().trim() : '';
+    const memberSearch = document.getElementById('competitions-member-search') ? document.getElementById('competitions-member-search').value.toLowerCase().trim() : '';
+    tbody.innerHTML = '';
 
-                        // ✨ 分別取得「花朵搜尋」與「成員搜尋」的文字
-                        const flowerSearchText = document.getElementById('competitions-flower-search').value.toLowerCase().trim();
-                        const memberSearchText = document.getElementById('competitions-member-search').value.toLowerCase().trim();
+    // 1. 先篩選出符合條件的「成員」 (改為以成員為核心)
+    const filteredMembers = members.filter(m => {
+        // 公會篩選
+        if (guildFilter && m.guild !== guildFilter) return false;
+        // 名字搜尋
+        if (memberSearch && !m.gameName.toLowerCase().includes(memberSearch)) return false;
+        return true;
+    });
 
-                        tbody.innerHTML = '';
+    // 2. 如果沒有成員符合
+    if (filteredMembers.length === 0) { 
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#999;">沒有符合條件的成員</td></tr>'; 
+        return; 
+    }
 
-                        const filteredCompetitions = competitions.filter(comp => {
-                            // 1. 檢查公會
-                            const member = members.find(m => m.gameName === comp.memberName);
-                            const memberGuild = member ? member.guild : '';
-                            if (guildFilter && memberGuild !== guildFilter) return false;
+    // 3. 遍歷成員，找找看有沒有競賽紀錄
+    filteredMembers.forEach(member => {
+        // 嘗試從競賽紀錄中找到這個人
+        const comp = competitions.find(c => String(c.memberName) === String(member.gameName));
+        
+        // 如果有花朵搜尋關鍵字，且這個人的紀錄不符合，就跳過
+        if (flowerSearch && (!comp || !comp.selectedFlowers.join(' ').toLowerCase().includes(flowerSearch))) {
+            return; 
+        }
 
-                            // 2. ✨ 檢查成員名稱 (只看下方的搜尋框)
-                            if (memberSearchText && !comp.memberName.toLowerCase().includes(memberSearchText)) {
-                                return false;
-                            }
+        const row = document.createElement('tr');
+        
+        // 判斷顯示內容：有紀錄顯示花朵，沒紀錄顯示「尚未參賽」
+        const flowersText = comp && comp.selectedFlowers.length > 0 
+            ? comp.selectedFlowers.join(', ') 
+            : '<span style="color:#d1d5db; font-style:italic;">尚未參賽</span>';
+            
+        // 按鈕邏輯：有紀錄顯示編輯/刪除，沒紀錄顯示「新增」
+        // 注意：這裡直接呼叫 showCompetitionForm 並帶入成員名字，方便直接新增
+        const btns = comp 
+            ? `<button class="edit-btn" onclick="editCompetition(${comp.id})">✏️</button><button class="delete-btn" onclick="deleteCompetition(${comp.id})">🗑️</button>`
+            : `<button class="add-btn" onclick="showCompetitionFormForMember('${member.gameName}')" style="padding: 2px 8px; font-size: 12px;">➕ 新增</button>`;
 
-                            // 3. ✨ 檢查花朵名稱 (只看上方的搜尋框)
-                            if (flowerSearchText) {
-                                // 把該成員選的所有花接成一串字串來檢查
-                                const flowersStr = comp.selectedFlowers.join(' ').toLowerCase();
-                                // 如果這串花裡面沒有包含搜尋的字，就剔除
-                                if (!flowersStr.includes(flowerSearchText)) {
-                                    return false;
-                                }
-                            }
+        row.innerHTML = `
+            <td><span class="clickable-link" onclick="showMemberDetail(${member.id})">${member.gameName}</span></td>
+            <td>${flowersText}</td>
+            <td><div class="actions">${btns}</div></td>`;
+        tbody.appendChild(row);
+    });
+}
 
-                            return true; // 通過所有檢查
-                        });
+// 輔助函式：給「尚未參賽」的按鈕用的，直接開啟新增視窗並選好人
+function showCompetitionFormForMember(memberName) {
+    showCompetitionForm(); // 開啟表單
+    // 延遲一下等待 DOM 建立，然後自動選取該成員
+    setTimeout(() => {
+        const select = document.getElementById('comp-member');
+        if(select) {
+            select.value = memberName;
+            // 觸發 change 事件以更新花朵列表
+            const event = new Event('change');
+            select.dispatchEvent(event);
+        }
+    }, 100);
+}
 
                         // 渲染畫面
                         filteredCompetitions.forEach(comp => {
@@ -2248,6 +2280,7 @@ function toggleAllDistribute(checked) {
                 </script>
 </body>
 </html>
+
 
 
 
