@@ -690,163 +690,135 @@
             }
         
 /* =========================================
-   📱 極簡橫向滿版 RWD (max-width: 1024px)
-   1. 【隱藏標題】：去除所有干擾，只顯示資料
-   2. 【橫向排列】：資料強制一行顯示，不換行
-   3. 【滿版對齊】：按鈕固定靠右，中間資訊自動填滿
+   📱 最終修復版 RWD (max-width: 1024px)
+   1. 【核彈級隱藏】：預設把所有標題列炸掉 (display: none)，解決花朵清單標題亂跑的問題
+   2. 【精準還原】：只把「成員清單」的標題救回來，並設定為 Grid 對齊
+   3. 【卡片優化】：花朵/競賽維持乾淨的卡片樣式
    ========================================= */
-@media screen and (max-width: 1024px) {
-    /* 1. 全局重置：炸開表格，但隱藏標題 */
-    table, tbody, tr, td, th {
+@media screen and (max-width: 768px) {
+    /* 1. 全局重置：將所有表格元素改為區塊，避免表格縮水 */
+    table, tbody, tr, td, th, thead {
         display: block !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
-    
-    /* 🚫 核心：隱藏所有標題列 🚫 */
-    thead { display: none !important; }
 
-    /* 2. 通用單行樣式 (每一列都是橫向滿版) */
+    /* 🛑 核心修正：預設隱藏所有表頭 (thead, th) 🛑 */
+    /* 這會把花朵和競賽那堆亂七八糟的標題全部消滅 */
+    thead, thead tr, th {
+        display: none !important; 
+    }
+
+    /* 2. 通用卡片外觀 (適用於所有清單內容) */
     tbody tr {
         background: #ffffff !important;
-        margin-bottom: 0 !important; /* 像 Excel 一樣緊密，不要間距 (可選) */
-        border-bottom: 1px solid #e5e7eb !important;
-        height: 55px !important; /* 固定高度，保證整齊 */
+        margin-bottom: 8px !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
     }
-
-    /* 清除格子預設樣式 */
-    tbody td { 
-        border: none !important; 
-        padding: 0 !important; 
-        background: transparent !important;
-        white-space: nowrap !important; /* 強制不換行 */
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
+    tbody td { border: none !important; padding: 0 !important; background: transparent !important; }
     tbody td::before { display: none !important; }
 
 
     /* =========================================
-       👥 成員清單 (橫向滿版)
-       欄位：[遊戲名稱] [ID] [公會] [按鈕]
-       配比：自動 | 75px | 50px | 75px
+       👥 成員清單：唯一需要「標題對齊」的地方
        ========================================= */
+    
+    /* 1. 把成員清單的標題「救回來」 */
+    #members-content thead,
+    #members-content thead tr,
+    #members-content th {
+        display: block !important; 
+    }
+
+    /* 2. 設定「標題列」與「內容列」的 Grid 佈局 (必須一模一樣) */
+    /* 欄位：名字(彈性) | ID(70px) | 公會(50px) | 按鈕(75px) */
+    #members-content thead tr,
     #members-table tr {
         display: grid !important;
-        grid-template-columns: 1fr 75px 50px 75px !important; /* ✨ 鎖死寬度 */
-        gap: 5px !important;
+        grid-template-columns: 1fr 70px 50px 75px !important; /* ✨ 鎖死寬度 */
+        gap: 4px !important;
         align-items: center !important;
         padding: 0 10px !important;
     }
 
-    /* Col 1: 遊戲名稱 (靠左) */
-    #members-table td:nth-of-type(1) {
-        font-size: 15px !important; font-weight: bold !important; color: #2563eb !important;
-        text-align: left !important;
+    /* 3. 標題列專屬樣式 */
+    #members-content thead tr {
+        height: 30px !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin-bottom: 0 !important;
     }
 
-    /* Col 2: ID (靠右) */
-    #members-table td:nth-of-type(2) {
-        font-size: 11px !important; color: #9ca3af !important; 
-        text-align: right !important; font-family: monospace !important;
-    }
+    /* 4. 內容列專屬樣式 */
+    #members-table tr { height: 50px !important; }
+
+    /* --- 欄位對齊微調 --- */
+    /* 遊戲名稱 */
+    #members-content th:nth-child(1) { text-align: left !important; font-size: 12px !important; color: #6b7280 !important; padding-left: 4px !important; }
+    #members-table td:nth-of-type(1) { text-align: left !important; font-size: 15px !important; font-weight: bold !important; color: #2563eb !important; padding-left: 4px !important; }
+
+    /* 遊戲ID */
+    #members-content th:nth-child(2) { text-align: right !important; font-size: 12px !important; color: #6b7280 !important; padding-right: 4px !important; }
+    #members-table td:nth-of-type(2) { text-align: right !important; font-size: 12px !important; color: #9ca3af !important; padding-right: 4px !important; font-family: monospace !important; }
     #members-table td:nth-of-type(2)::before { content: "#" !important; color: #e5e7eb !important; }
 
-    /* Col 3: 公會 (置中膠囊) */
-    #members-table td:nth-of-type(3) span, #members-table td:nth-of-type(3) {
-        display: flex !important; justify-content: center !important; align-items: center !important;
-        font-size: 11px !important; color: #64748b !important; background: #f1f5f9 !important;
-        width: 100% !important; border-radius: 4px !important; height: 22px !important; padding: 0 !important;
-    }
+    /* 公會 */
+    #members-content th:nth-child(3) { text-align: center !important; font-size: 12px !important; color: #6b7280 !important; }
+    #members-table td:nth-of-type(3) span, #members-table td:nth-of-type(3) { display: flex !important; justify-content: center !important; align-items: center !important; font-size: 11px !important; color: #64748b !important; background: #f1f5f9 !important; width: 100% !important; border-radius: 4px !important; height: 22px !important; padding: 0 !important; }
 
-    /* Col 4: 按鈕 (靠右) */
+    /* 隱藏多餘標題 (擁有花) */
+    #members-content th:nth-child(4), #members-table td:nth-of-type(4) { display: none !important; }
+
+    /* 操作 (標題隱藏文字保留佔位，或直接隱藏) */
+    #members-content th:nth-child(5) { visibility: hidden !important; } 
     #members-table td:nth-of-type(5) { text-align: right !important; overflow: visible !important; }
     #members-table .actions { justify-content: flex-end !important; gap: 6px !important; }
+
+
+    /* =========================================
+       🌸 花朵 & 🏆 競賽 (這裡標題必須死，絕對不能出現)
+       ========================================= */
     
-    /* 隱藏花朵欄位 */
-    #members-table td:nth-of-type(4) { display: none !important; }
+    /* 再次確認花朵和競賽的標題是隱藏的 */
+    #flowers-content thead, #flowers-content th,
+    #competitions-content thead, #competitions-content th {
+        display: none !important;
+    }
 
-
-    /* =========================================
-       🌸 花朵清單 (橫向滿版)
-       欄位：[花名+資訊] [擁有者] [按鈕]
-       配比：自動 | 80px | 75px
-       ========================================= */
+    /* 花朵卡片佈局 */
     #flowers-table tr {
-        display: grid !important;
-        grid-template-columns: 1fr 80px 75px !important;
-        gap: 5px !important;
-        align-items: center !important;
-        padding: 0 10px !important;
+        display: grid !important; grid-template-columns: 1fr auto !important; grid-template-rows: auto auto !important;
+        min-height: 60px !important; padding: 10px 12px !important; gap: 4px !important; align-content: center !important;
     }
+    #flowers-table td:nth-of-type(1) { grid-column: 1 / 2 !important; grid-row: 1 / 2 !important; font-size: 15px !important; font-weight: bold !important; color: #2563eb !important; margin-bottom: 4px !important; }
+    #flowers-table td:nth-of-type(3) { grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; font-size: 12px !important; color: #4b5563 !important; display: flex !important; align-items: center !important; width: fit-content !important; }
+    #flowers-table td:nth-of-type(4) { grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; font-size: 12px !important; color: #9ca3af !important; pointer-events: none !important; margin-left: 75px !important; }
+    #flowers-table td:nth-of-type(4)::after { content: "分"; font-size: 11px; }
+    #flowers-table td:nth-of-type(2) { display: block !important; grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; font-size: 12px !important; color: #93c5fd !important; text-align: right !important; padding-right: 8px !important; margin-left: 120px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+    #flowers-table td:nth-of-type(2)::before { content: "👤"; font-size: 10px; margin-right:2px; }
+    #flowers-table td:nth-of-type(9) { grid-column: 2 / 3 !important; grid-row: 1 / 3 !important; align-self: center !important; padding-left: 8px !important; }
+    #flowers-table td:nth-of-type(5), #flowers-table td:nth-of-type(6), #flowers-table td:nth-of-type(7), #flowers-table td:nth-of-type(8) { display: none !important; }
 
-    /* Col 1: 花名 (我們把等級分數藏在名字下面變成小字，保持橫向乾淨) */
-    #flowers-table td:nth-of-type(1) {
-        display: flex !important; flex-direction: column !important; justify-content: center !important;
-        font-size: 14px !important; font-weight: bold !important; color: #2563eb !important;
-        line-height: 1.2 !important;
-    }
-    /* 利用 CSS 偽元素把等級顯示出來，不用額外欄位 */
-    #flowers-table td:nth-of-type(1)::after {
-        content: "詳細資訊可點擊查看"; /* 提示文字 */
-        font-size: 10px !important; color: #9ca3af !important; font-weight: normal !important; margin-top: 2px !important;
-    }
+    /* 競賽卡片佈局 */
+    #competitions-table tr { display: grid !important; grid-template-columns: 1fr auto !important; grid-template-rows: auto auto !important; min-height: 60px !important; padding: 10px 12px !important; gap: 4px !important; align-content: center !important; }
+    #competitions-table td:nth-of-type(1) { grid-column: 1 / 2 !important; grid-row: 1 / 2 !important; font-size: 15px !important; font-weight: bold !important; color: #2563eb !important; }
+    #competitions-table td:nth-of-type(2) { grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; font-size: 12px !important; color: #6b7280 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; width: 90% !important; }
+    #competitions-table td:nth-of-type(3) { grid-column: 2 / 3 !important; grid-row: 1 / 3 !important; align-self: center !important; padding-left: 8px !important; }
 
-    /* Col 2: 擁有者 (靠右) */
-    #flowers-table td:nth-of-type(2) {
-        display: block !important;
-        font-size: 11px !important; color: #93c5fd !important; text-align: right !important;
-    }
-    #flowers-table td:nth-of-type(2)::before { content: "👤 "; font-size: 10px; }
+    /* 通用按鈕 */
+    .edit-btn, .delete-btn { font-size: 15px !important; padding: 6px !important; background: #f9fafb !important; border-radius: 6px !important; border: 1px solid #e5e7eb !important; margin-left: 2px !important; }
 
-    /* Col 3: 按鈕 */
-    #flowers-table td:nth-of-type(9) { text-align: right !important; overflow: visible !important; }
-
-    /* 隱藏其他所有欄位，只留這三個 */
-    #flowers-table td:nth-of-type(3), #flowers-table td:nth-of-type(4),
-    #flowers-table td:nth-of-type(5), #flowers-table td:nth-of-type(6),
-    #flowers-table td:nth-of-type(7), #flowers-table td:nth-of-type(8) { display: none !important; }
-
-
-    /* =========================================
-       🏆 競賽清單 (橫向滿版)
-       欄位：[成員] [花朵] [按鈕]
-       配比：90px | 自動 | 75px
-       ========================================= */
-    #competitions-table tr {
-        display: grid !important;
-        grid-template-columns: 90px 1fr 75px !important;
-        gap: 5px !important;
-        align-items: center !important;
-        padding: 0 10px !important;
-    }
-    /* Col 1: 成員 */
-    #competitions-table td:nth-of-type(1) { font-size: 14px !important; font-weight: bold !important; color: #2563eb !important; }
-    /* Col 2: 花朵 (灰色小字) */
-    #competitions-table td:nth-of-type(2) { font-size: 12px !important; color: #6b7280 !important; }
-    /* Col 3: 按鈕 */
-    #competitions-table td:nth-of-type(3) { text-align: right !important; }
-
-
-    /* =========================================
-       📝 表單救援 (確保點開修改是正常的)
-       ========================================= */
+    /* 表單救援 */
     #members-table tr.form-row, #flowers-table tr.form-row, #competitions-table tr.form-row {
-        display: block !important; /* 表單列必須是區塊 */
-        height: auto !important;
-        background: #f8fafc !important;
-        border: 2px dashed #cbd5e1 !important;
-        padding: 16px !important;
-        margin-bottom: 10px !important;
+        display: block !important; height: auto !important; width: 100% !important; background: #f8fafc !important; border: 2px dashed #cbd5e1 !important; padding: 16px !important; margin-bottom: 16px !important;
     }
-    tr.form-row td { display: block !important; width: 100% !important; height: auto !important; white-space: normal !important; overflow: visible !important; }
+    tr.form-row td { display: block !important; width: 100% !important; height: auto !important; white-space: normal !important; overflow: visible !important; padding: 0 !important; }
     .form-container input, .form-container select { height: 40px !important; }
     .form-grid { display: flex !important; flex-direction: column !important; gap: 12px !important; }
-
-    /* 按鈕樣式 */
-    .edit-btn, .delete-btn { font-size: 15px !important; padding: 6px !important; background: #f9fafb !important; border-radius: 6px !important; border: 1px solid #e5e7eb !important; margin-left: 2px !important; }
 }
-
 </style>
 </head>
 <body>
@@ -2295,6 +2267,7 @@ function toggleAllDistribute(checked) {
                 </script>
 </body>
 </html>
+
 
 
 
